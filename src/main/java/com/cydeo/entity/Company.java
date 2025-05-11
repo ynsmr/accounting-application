@@ -1,9 +1,26 @@
 package com.cydeo.entity;
 
 import com.cydeo.entity.common.BaseEntity;
+import com.cydeo.enums.CompanyStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Entity
+@NoArgsConstructor
+@Getter
+@Setter
+@Table(name = "companies")
 public class Company extends BaseEntity {
+
+    @Column(unique = true, nullable = false)
+    private String title;
+    private String phone;
+    private String website;
+    @Enumerated(EnumType.STRING)
+    private CompanyStatus companyStatus;
+    @OneToOne
+    private Address address;
+
 }
