@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.cydeo</groupId>
-    <artifactId>accounting-project-grp-02</artifactId>
+    <artifactId>accounting-project</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>accounting-project-grp-02</name>
     <description>accounting-project-grp-02</description>
