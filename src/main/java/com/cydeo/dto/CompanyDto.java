@@ -10,10 +10,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Data
 public class CompanyDto {
-
-    @NotBlank
+    
     private Long id;
-    @NotBlank
     private String title;
     private String phone;
     private String website;
