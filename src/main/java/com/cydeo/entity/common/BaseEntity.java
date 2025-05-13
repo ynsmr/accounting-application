@@ -1,9 +1,6 @@
 package com.cydeo.entity.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
@@ -12,9 +9,9 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @MappedSuperclass
+@EntityListeners(BaseEntityListener.class)
 public class BaseEntity implements Serializable {
 
     @Id
