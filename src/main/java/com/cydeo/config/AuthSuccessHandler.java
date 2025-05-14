@@ -26,6 +26,7 @@ public class AuthSuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect("/users/list");
         }
         
-        response.sendRedirect("/dashboard");
+        //response.sendRedirect("/dashboard");
+        
     }
 }

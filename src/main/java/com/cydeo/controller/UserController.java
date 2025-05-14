@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
     
     private final UserService userService;
@@ -16,7 +16,7 @@ public class UserController {
     @GetMapping("/create")
     public String createUserPage(Model model){
         
-        return null;
+        return "/user/user-create";
     }
     
     @PostMapping("/create")
@@ -26,7 +26,7 @@ public class UserController {
         return null;
     }
 
-    @PutMapping("/update")
+    @GetMapping("/update")
     public String updateUserPage(Model model){
 
         return null;
@@ -41,7 +41,7 @@ public class UserController {
     @GetMapping("/list")
     public String listUsers(){
         
-        return null;
+        return "/user/user-list";
     }
     
     @DeleteMapping("/delete")
