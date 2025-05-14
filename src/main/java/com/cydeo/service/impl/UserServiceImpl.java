@@ -56,6 +56,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(convertToEntity(userDto));
     }
 
+    @Override
+    public void updateUser(UserDto userDto) {
+
+        User convertedUser = convertToEntity(userDto);
+        
+        
+    }
+
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " does not exist"));

@@ -25,7 +25,6 @@ public class UserController {
         model.addAttribute("userRoles", roleService.listAllRoles());
         model.addAttribute("companies", companyService.listAllCompanies());
         
-        
         return "user/user-create";
     }
     
@@ -49,6 +48,7 @@ public class UserController {
     @PostMapping("/update")
     public String updateUser(@ModelAttribute("user") UserDto userDto){
         
+        
         return "redirect:/users/update";
     }
     
@@ -60,7 +60,8 @@ public class UserController {
     }
     
     @GetMapping("/delete/{userId}")
-    public String deleteUser(@PathVariable("userId") String userId){
+    public String deleteUser(@PathVariable("userId") Long userId){
+        userService.deleteById(userId);
         
         return "redirect:/users/list";
     }

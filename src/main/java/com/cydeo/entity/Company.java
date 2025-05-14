@@ -4,6 +4,7 @@ import com.cydeo.entity.common.BaseEntity;
 import com.cydeo.enums.CompanyStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name = "companies")
+@Where(clause = "is_deleted = false")
 public class Company extends BaseEntity {
 
     @Column(unique = true, nullable = false)

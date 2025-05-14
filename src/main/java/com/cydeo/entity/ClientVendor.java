@@ -5,6 +5,7 @@ import com.cydeo.enums.ClientVendorType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name = "clients_vendors")
+@Where(clause = "is_deleted = false")
 public class ClientVendor extends BaseEntity {
     
     private String clientVendorName;
