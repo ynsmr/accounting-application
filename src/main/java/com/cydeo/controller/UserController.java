@@ -47,7 +47,7 @@ public class UserController {
     }
     
     @PostMapping("/update")
-    public String updateUser(Model model){
+    public String updateUser(@ModelAttribute("user") UserDto userDto){
         
         return "redirect:/users/update";
     }
@@ -59,8 +59,8 @@ public class UserController {
         return "user/user-list";
     }
     
-    @GetMapping("/delete")
-    public String deleteUser(){
+    @GetMapping("/delete/{userId}")
+    public String deleteUser(@PathVariable("userId") String userId){
         
         return "redirect:/users/list";
     }

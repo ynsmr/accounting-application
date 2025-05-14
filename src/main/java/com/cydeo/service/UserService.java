@@ -10,6 +10,8 @@ public interface UserService {
     
     List<UserDto> listAllUsers();
     
-    UserDto findById(Long id);
+    UserDto findById(Long userId);
+    
+    void deleteById(Long userId);
     
 }

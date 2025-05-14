@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findByUsername(String username) {
-
         Optional<User> userRetrieved = userRepository.findByUsername(username);
         
         if (userRetrieved.isEmpty()){
@@ -42,11 +41,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findById(Long id) {
-        return convertToDTO(userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No such person with id: "+ id)));
+    public UserDto findById(Long userId) {
+        return convertToDTO(findUserById(userId));
     }
 
+    @Override
+    public void deleteById(Long userId) {
+        User user = findUserById(userId);
+        softDeleteUser(user);
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " does not exist"));
+    }
+    
+    private void softDeleteUser(User user) {
+        user.setIsDeleted(true);
+        userRepository.save(user);
+    }
 
     private UserDto convertToDTO(User user){
         return mapperUtil.convert(user, new UserDto());
