@@ -25,31 +25,32 @@ public class UserController {
     public String createUser(Model model){
         
         
-        return null;
+        return "redirect:/users/list";
     }
 
     @GetMapping("/update")
     public String updateUserPage(Model model){
 
-        return null;
+        return "user/user-update";
     }
     
-    @PutMapping("/update")
+    @PostMapping("/update")
     public String updateUser(Model model){
         
-        return null;
+        return "redirect:/users/update";
     }
     
     @GetMapping("/list")
-    public String listUsers(){
+    public String listUsers(Model model){
+        model.addAttribute("users", userService.listAllUsers());
         
         return "user/user-list";
     }
     
-    @DeleteMapping("/delete")
+    @GetMapping("/delete")
     public String deleteUser(){
         
-        return null;
+        return "redirect:/users/list";
     }
     
 }

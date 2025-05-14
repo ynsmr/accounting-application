@@ -5,11 +5,12 @@ import com.cydeo.entity.User;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.UserService;
-import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,5 +32,17 @@ public class UserServiceImpl implements UserService {
             throw new NoSuchElementException("No such user found on DB");
         }
         return mapperUtil.convert(userRetrieved, new UserDto());
+    }
+
+    @Override
+    public List<UserDto> listAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    
+    private UserDto convertToDTO(User user){
+        return mapperUtil.convert(user, new UserDto());
     }
 }

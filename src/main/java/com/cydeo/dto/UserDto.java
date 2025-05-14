@@ -18,8 +18,8 @@ public class UserDto {
     private String firstname;
     private String lastname;
     private String phone;
-    private RoleDto roleDto;
-    private CompanyDto companyDto;
+    private RoleDto role;
+    private CompanyDto company;
     private boolean isOnlyAdmin;
     
     
