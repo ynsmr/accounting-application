@@ -51,6 +51,11 @@ public class UserServiceImpl implements UserService {
         softDeleteUser(user);
     }
 
+    @Override
+    public void saveUser(UserDto userDto) {
+        userRepository.save(convertToEntity(userDto));
+    }
+
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " does not exist"));
@@ -63,5 +68,9 @@ public class UserServiceImpl implements UserService {
 
     private UserDto convertToDTO(User user){
         return mapperUtil.convert(user, new UserDto());
+    }
+    
+    private User convertToEntity(UserDto userDto){
+        return mapperUtil.convert(userDto, new User());
     }
 }
