@@ -10,4 +10,6 @@ public interface UserService {
     
     List<UserDto> listAllUsers();
     
+    UserDto findById(Long id);
+    
 }

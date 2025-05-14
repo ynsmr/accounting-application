@@ -37,9 +37,12 @@ public class UserController {
         return "redirect:/users/list";
     }
 
-    @GetMapping("/update")
-    public String updateUserPage(Model model){
-
+    @GetMapping("/update/{userId}")
+    public String updateUserPage(@PathVariable("userId") Long userId, Model model){
+        model.addAttribute("user", userService.findById(userId));
+        model.addAttribute("userRoles", roleService.listAllRoles());
+        model.addAttribute("companies", companyService.listAllCompanies());
+        
         return "user/user-update";
     }
     

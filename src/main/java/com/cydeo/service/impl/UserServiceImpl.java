@@ -40,8 +40,14 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
-    
+
+    @Override
+    public UserDto findById(Long id) {
+        return convertToDTO(userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No such person with id: "+ id)));
+    }
+
+
     private UserDto convertToDTO(User user){
         return mapperUtil.convert(user, new UserDto());
     }
