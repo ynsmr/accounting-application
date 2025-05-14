@@ -24,7 +24,6 @@ public class UserController {
         model.addAttribute("newUser", new UserDto());
         model.addAttribute("userRoles", roleService.listAllRoles());
         model.addAttribute("companies", companyService.listAllCompanies());
-        
         return "user/user-create";
     }
     
@@ -32,7 +31,6 @@ public class UserController {
     @PostMapping("/create")
     public String createUser(@ModelAttribute("newUser") UserDto userDto){
         userService.saveUser(userDto);
-        
         return "redirect:/users/list";
     }
 
@@ -41,28 +39,24 @@ public class UserController {
         model.addAttribute("user", userService.findById(userId));
         model.addAttribute("userRoles", roleService.listAllRoles());
         model.addAttribute("companies", companyService.listAllCompanies());
-        
         return "user/user-update";
     }
     
     @PostMapping("/update/{userId}")
     public String updateUser(@ModelAttribute("user") UserDto userDto){
         userService.saveUser(userDto);
-        
         return "redirect:/users/list";
     }
     
     @GetMapping("/list")
     public String listUsers(Model model){
         model.addAttribute("users", userService.listAllUsers());
-        
         return "user/user-list";
     }
     
     @GetMapping("/delete/{userId}")
     public String deleteUser(@PathVariable("userId") Long userId){
         userService.deleteById(userId);
-        
         return "redirect:/users/list";
     }
     
