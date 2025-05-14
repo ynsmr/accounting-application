@@ -31,8 +31,8 @@ public class UserController {
     
     
     @PostMapping("/create")
-    public String createUser(Model model){
-        
+    public String createUser(@ModelAttribute("newUser") UserDto userDto){
+        userService.saveUser(userDto);
         
         return "redirect:/users/list";
     }
