@@ -1,5 +1,8 @@
 package com.cydeo.controller;
 
+import com.cydeo.dto.UserDto;
+import com.cydeo.service.CompanyService;
+import com.cydeo.service.RoleService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.Banner;
@@ -13,9 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     
     private final UserService userService;
+    private final RoleService roleService;
+    private final CompanyService companyService;
     
     @GetMapping("/create")
-    public String createUserPage(){
+    public String createUserPage(Model model){
+        model.addAttribute("newUser", new UserDto());
+        model.addAttribute("userRoles", roleService.listAllRoles());
+        model.addAttribute("companies", companyService.listAllCompanies());
         
         
         return "user/user-create";

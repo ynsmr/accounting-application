@@ -7,4 +7,5 @@ import java.util.List;
 public interface CompanyService {
     
     CompanyDto findCompanyByUser(Long userId);
+    List<CompanyDto> listAllCompanies();
 }

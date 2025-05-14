@@ -8,8 +8,10 @@ import com.cydeo.service.CompanyService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -24,7 +26,14 @@ public class CompanyServiceImpl implements CompanyService {
                 .findCompanyByLoggedInUser(userId)
                 .orElseThrow(() -> new NoSuchElementException("No associated company found")));
     }
-    
+
+    @Override
+    public List<CompanyDto> listAllCompanies() {
+        return companyRepository.findAll().stream()
+                .map(this::convertToCompanyDTO)
+                .collect(Collectors.toList());
+    }
+
     private CompanyDto convertToCompanyDTO(Company company){
         return mapperUtil.convert(company, new CompanyDto());
     }
