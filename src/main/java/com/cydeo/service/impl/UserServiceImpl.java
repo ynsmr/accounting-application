@@ -58,8 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(UserDto userDto) {
-
-        User convertedUser = convertToEntity(userDto);
+        userRepository.save(convertToEntity(userDto));
         
         
     }

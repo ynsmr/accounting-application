@@ -34,8 +34,18 @@ public class CompanyServiceImpl implements CompanyService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public CompanyDto findById(Long companyId) {
+        return convertToCompanyDTO(findCompanyById(companyId));
+    }
+
     private CompanyDto convertToCompanyDTO(Company company){
         return mapperUtil.convert(company, new CompanyDto());
+    }
+    
+    private Company findCompanyById(Long companyId){
+        return companyRepository.findById(companyId)
+                .orElseThrow(() -> new NoSuchElementException("No company found with id: " + companyId));
     }
     
 }

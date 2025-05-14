@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,8 +25,18 @@ public class RoleServiceImpl implements RoleService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
+    @Override
+    public RoleDto findById(Long roleId) {
+        return convertToDTO(findRoleById(roleId));
+    }
+
     private RoleDto convertToDTO(Role role){
         return mapperUtil.convert(role, new RoleDto());
+    }
+    
+    private Role findRoleById(Long roleId){
+        return roleRepository.findById(roleId)
+                .orElseThrow(() -> new NoSuchElementException("No role found with id: " + roleId));
     }
 }

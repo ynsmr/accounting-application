@@ -45,11 +45,11 @@ public class UserController {
         return "user/user-update";
     }
     
-    @PostMapping("/update")
+    @PostMapping("/update/{userId}")
     public String updateUser(@ModelAttribute("user") UserDto userDto){
+        userService.saveUser(userDto);
         
-        
-        return "redirect:/users/update";
+        return "redirect:/users/list";
     }
     
     @GetMapping("/list")
