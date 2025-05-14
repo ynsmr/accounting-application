@@ -3,11 +3,12 @@ package com.cydeo.controller;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.Banner;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
-@RestController
+@Controller
 @RequestMapping("/users")
 public class UserController {
     
@@ -16,7 +17,7 @@ public class UserController {
     @GetMapping("/create")
     public String createUserPage(Model model){
         
-        return "/user/user-create";
+        return "user/user-create";
     }
     
     @PostMapping("/create")
@@ -41,7 +42,7 @@ public class UserController {
     @GetMapping("/list")
     public String listUsers(){
         
-        return "/user/user-list";
+        return "user/user-list";
     }
     
     @DeleteMapping("/delete")
