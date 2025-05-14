@@ -21,6 +21,7 @@ public class InvoiceProduct extends BaseEntity {
     private BigDecimal price;
     private int tax;
     private int remainingQuantity;
+    private BigDecimal profitLoss;
     @ManyToOne
     private Invoice invoice;
     @ManyToOne

@@ -19,28 +19,31 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .authorizeRequests()
-                .antMatchers("/", 
+                .antMatchers(
+                        "/", 
                         "/login",
-                        "fragments/**",
+                        "/fragments/**",
                         "/assets/**",
-                        "/images/**")
-                .permitAll()
+                        "/images/**",
+                        "/assets/libs/js/**",
+                        "/assets/libs/css/**"
+                        ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login")
-                .successHandler(authSuccessHandler)
-                .failureUrl("/login?error=true")
-                .permitAll()
+                    .loginPage("/login")
+                    .successHandler(authSuccessHandler)
+                    .failureUrl("/login?error=true")
+                    .permitAll()
                 .and()
                 .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login")
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                    .logoutSuccessUrl("/login")
                 .and()
                 .rememberMe()
-                .tokenValiditySeconds(864000)
-                .key("cydeo")
-                .userDetailsService(securityService)
+                    .tokenValiditySeconds(864000)
+                    .key("cydeo")
+                    .userDetailsService(securityService)
                 .and().build();
                 
                 

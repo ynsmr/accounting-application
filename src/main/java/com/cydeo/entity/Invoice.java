@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
@@ -19,8 +17,11 @@ import java.time.LocalDate;
 @Table(name = "invoices")
 public class Invoice extends BaseEntity {
     
+    
     private String invoiceNo;
+    @Enumerated(EnumType.STRING)
     private InvoiceType invoiceType;
+    @Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
     private LocalDate date;
     @ManyToOne
