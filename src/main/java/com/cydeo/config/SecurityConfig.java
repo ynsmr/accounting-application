@@ -22,19 +22,19 @@ public class SecurityConfig {
                 .antMatchers(
                         "/", 
                         "/login",
-                        "fragments/**",
+                        "/fragments/**",
                         "/assets/**",
                         "/images/**",
-                        "/css/**",
-                        "/js/**"
-                ).permitAll()
+                        "/assets/libs/js/**",
+                        "/assets/libs/css/**"
+                        ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                     .loginPage("/login")
                     .successHandler(authSuccessHandler)
                     .failureUrl("/login?error=true")
-                    .permitAll()
+                    //.permitAll()
                 .and()
                 .logout()
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
