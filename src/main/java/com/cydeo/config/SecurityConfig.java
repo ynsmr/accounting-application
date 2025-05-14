@@ -34,7 +34,7 @@ public class SecurityConfig {
                     .loginPage("/login")
                     .successHandler(authSuccessHandler)
                     .failureUrl("/login?error=true")
-                    //.permitAll()
+                    .permitAll()
                 .and()
                 .logout()
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
