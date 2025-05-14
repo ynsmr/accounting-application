@@ -15,7 +15,8 @@ public class UserController {
     private final UserService userService;
     
     @GetMapping("/create")
-    public String createUserPage(Model model){
+    public String createUserPage(){
+        
         
         return "user/user-create";
     }
