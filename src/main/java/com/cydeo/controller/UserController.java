@@ -5,11 +5,11 @@ import com.cydeo.service.CompanyService;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
 @Controller
 @RequestMapping("/users")
 public class UserController {
@@ -17,7 +17,13 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
     private final CompanyService companyService;
-    
+
+    public UserController(UserService userService, RoleService roleService, CompanyService companyService) {
+        this.userService = userService;
+        this.roleService = roleService;
+        this.companyService = companyService;
+    }
+
     @GetMapping("/create")
     public String createUserPage(Model model){
         model.addAttribute("newUser", new UserDto());
@@ -59,5 +65,7 @@ public class UserController {
         userService.deleteById(userId);
         return "redirect:/users/list";
     }
+    
+  
     
 }

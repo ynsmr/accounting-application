@@ -8,7 +8,8 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserDto {
     
     private Long id;

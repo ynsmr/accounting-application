@@ -9,4 +9,11 @@ public interface CompanyService {
     CompanyDto findCompanyByUser(Long userId);
     List<CompanyDto> listAllCompanies();
     CompanyDto findById(Long companyId);
+    void deleteCompany(Long companyId);
+    void saveCompany(CompanyDto companyDto);
+    void updateCompany(CompanyDto companyDto);
+    void activateCompany(Long companyId);
+    void deactivateCompany(Long companyId);
+    
+    
 }
