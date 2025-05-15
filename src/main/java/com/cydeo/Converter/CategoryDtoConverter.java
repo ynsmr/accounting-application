@@ -1,0 +1,24 @@
+package com.cydeo.Converter;
+
+import com.cydeo.dto.CategoryDto;
+import com.cydeo.service.CategoryService;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConfigurationPropertiesBinding
+public class CategoryDtoConverter implements Converter<Long, CategoryDto> {
+
+    private final CategoryService categoryService;
+
+    public CategoryDtoConverter(@Lazy CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
+
+    @Override
+    public CategoryDto convert(Long source) {
+        return categoryService.findById(source);
+    }
+}
