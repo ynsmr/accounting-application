@@ -18,39 +18,39 @@ public class CategoryController {
     
     @GetMapping("/list")
     public String listCategoryPage(Model model){
-        
+        model.addAttribute("categories", categoryService.findAll());
         return "category/category-list";
     }
     
     @GetMapping("/create")
     public String createCategoryPage(Model model){
         model.addAttribute("newCategory", new CategoryDto());
-        
         return "category/category-create";
     }
     
     @GetMapping("/update/{categoryId}")
-    public String updateCategory(@PathVariable("categoryId") Long categoryId{
-        
+    public String updateCategory(@PathVariable("categoryId") Long categoryId, Model model){
+        model.addAttribute("category", categoryService.findById(categoryId));
         return "category/category-update";
     }
     
     @GetMapping("/delete/{categoryId}")
-    public String deleteCategory(Long categoryId){
-        
+    public String deleteCategory(@PathVariable("categoryId") Long categoryId){
+        categoryService.deleteCategory(categoryId);
         return "redirect:/categories/list";
     }
 
     @PostMapping("/update/{categoryId}")
-    public String updateCategory(Long categoryId, @ModelAttribute("category") CategoryDto categoryDto){
+    public String updateCategory(@PathVariable("categoryId") Long categoryId, @ModelAttribute("category") CategoryDto categoryDto){
         categoryDto.setId(categoryId);
+        categoryService.updateCategory(categoryDto);
         
         return "redirect:/categories/list";
     }
     
     @PostMapping("/create")
     public String createCategory(@ModelAttribute CategoryDto categoryDto){
-
+        categoryService.saveCategory(categoryDto);
         return "redirect:/categories/list";
     }
     
