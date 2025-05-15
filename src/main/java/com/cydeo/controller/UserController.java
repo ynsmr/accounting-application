@@ -42,8 +42,9 @@ public class UserController {
     }
     
     @PostMapping("/update/{userId}")
-    public String updateUser(@ModelAttribute("user") UserDto userDto){
-        userService.saveUser(userDto);
+    public String updateUser(@PathVariable("userId") Long userId, @ModelAttribute("user") UserDto userDto){
+        userDto.setId(userId);
+        userService.updateUser(userDto);
         return "redirect:/users/list";
     }
     

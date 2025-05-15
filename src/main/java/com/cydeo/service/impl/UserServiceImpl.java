@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
     public void updateUser(UserDto userDto) {
         userRepository.save(convertToEntity(userDto));
         
-        
     }
 
     private User findUserById(Long userId) {
