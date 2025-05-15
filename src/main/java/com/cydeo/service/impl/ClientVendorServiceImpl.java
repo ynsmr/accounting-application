@@ -2,41 +2,67 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.entity.ClientVendor;
+import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ClientVendorRepository;
 import com.cydeo.service.ClientVendorService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ClientVendorServiceImpl implements ClientVendorService {
     
     private final ClientVendorRepository clientVendorRepository;
+    private final MapperUtil mapperUtil;
     
     @Override
     public ClientVendorDto findById(Long id) {
-        return clientVendorRepository.fid;
+        return convertToDto(findClientVendorById(id));
     }
 
     @Override
     public List<ClientVendorDto> listAll() {
-        return List.of();
+        return clientVendorRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void saveClientVendor(ClientVendorDto clientVendorDto) {
-
+        clientVendorRepository.save(convertToEntity(clientVendorDto));
     }
 
     @Override
-    public void updateClientVendor(ClientVendor clientVendor) {
-
+    public void updateClientVendor(ClientVendorDto clientVendorDto) {
+        clientVendorRepository.save(convertToEntity(clientVendorDto));
+        
     }
 
     @Override
     public void deleteClientVendor(Long id) {
+        softDeleteClientVendor(findClientVendorById(id));
 
+    }
+    
+    private ClientVendor findClientVendorById(Long id){
+        return clientVendorRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No such client/vendor found"));
+    }
+    
+    private ClientVendorDto convertToDto(ClientVendor clientVendor){
+        return mapperUtil.convert(clientVendor, new ClientVendorDto());
+    }
+    
+    private ClientVendor convertToEntity(ClientVendorDto clientVendorDto){
+        return mapperUtil.convert(clientVendorDto, new ClientVendor());
+    }
+    
+    private void softDeleteClientVendor(ClientVendor clientVendor){
+        clientVendor.setIsDeleted(true);
+        clientVendorRepository.save(clientVendor);
     }
 }

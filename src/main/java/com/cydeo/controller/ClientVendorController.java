@@ -1,10 +1,13 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.ClientVendorDto;
+import com.cydeo.enums.ClientVendorType;
 import com.cydeo.service.ClientVendorService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @Controller
 @RequestMapping("/clientVendors")
@@ -18,40 +21,41 @@ public class ClientVendorController {
     
     @GetMapping("/list")
     public String listClientVendors(Model model){
-        
-        return "/clientVendor-list";
+        model.addAttribute("clientVendors", clientVendorService.listAll());
+        return "clientVendor/clientVendor-list";
     }
     
     @GetMapping("/create")
     public String createClientVendorPage(Model model){
         model.addAttribute("newClientVendor", new ClientVendorDto());
+        model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
         
         return "clientVendor/clientVendor-create";
     }
 
     @GetMapping("/update/{clientVendorId}")
     public String updateClientVendorPage(@PathVariable("clientVendorId") Long clientVendorId, Model model){
-        
-
+        model.addAttribute("clientVendor", clientVendorService.findById(clientVendorId));
+        model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
         return "clientVendor/clientVendor-update";
     }
     
     @GetMapping("/delete/{clientVendorId}")
     public String deleteClientVendor(@PathVariable("clientVendorId") Long clientVendorId){
-        
+        clientVendorService.deleteClientVendor(clientVendorId);
         return "redirect:/clientVendors/list";
     }
 
     @PostMapping("/create")
     public String createClientVendor(@ModelAttribute("clientVendor") ClientVendorDto clientVendorDto){
-        
+        clientVendorService.saveClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }
 
     @PostMapping("/update/{clientVendorId}")
     public String updateClientVendor(@ModelAttribute("clientVendor") ClientVendorDto clientVendorDto, @PathVariable("clientVendorId") Long clientVendorId){
         clientVendorDto.setId(clientVendorId);
-        
+        clientVendorService.updateClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }
     

@@ -22,7 +22,7 @@ public class ClientVendor extends BaseEntity {
     private String website;
     @Enumerated(EnumType.STRING)
     private ClientVendorType clientVendorType;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Address address;
     @ManyToOne
     private Company company;

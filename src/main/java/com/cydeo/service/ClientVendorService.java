@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface ClientVendorService {
     
-    ClientVendorDto findClientVendorById(Long id);
+    ClientVendorDto findById(Long id);
     List<ClientVendorDto> listAll();
     void saveClientVendor(ClientVendorDto clientVendorDto);
-    void updateClientVendor(ClientVendor clientVendor);
+    void updateClientVendor(ClientVendorDto clientVendorDto);
     void deleteClientVendor(Long id);
 }
