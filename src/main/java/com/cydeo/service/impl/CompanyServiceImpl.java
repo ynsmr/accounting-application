@@ -40,25 +40,25 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void deleteCompany(Long companyId) {
+    public void delete(Long companyId) {
        softDeleteCompany(findCompanyById(companyId));
     }
 
     @Override
-    public void saveCompany(CompanyDto companyDto) {
+    public void save(CompanyDto companyDto) {
         companyDto.setCompanyStatus(CompanyStatus.ACTIVE);
         companyRepository.save(convertToEntity(companyDto));
     }
 
     @Override
-    public void updateCompany(CompanyDto companyDto) {
+    public void update(CompanyDto companyDto) {
         companyDto.setCompanyStatus(findCompanyById(companyDto.getId()).getCompanyStatus());
         companyRepository.save(convertToEntity(companyDto));
 
     }
 
     @Override
-    public void activateCompany(Long companyId) {
+    public void activate(Long companyId) {
         Company company = findCompanyById(companyId);
         if (!company.getCompanyStatus().equals(CompanyStatus.ACTIVE)){
             company.setCompanyStatus(CompanyStatus.ACTIVE);
@@ -67,7 +67,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void deactivateCompany(Long companyId) {
+    public void deactivate(Long companyId) {
         Company company = findCompanyById(companyId);
         if (!company.getCompanyStatus().equals(CompanyStatus.PASSIVE)){
             company.setCompanyStatus(CompanyStatus.PASSIVE);

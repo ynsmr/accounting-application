@@ -38,31 +38,31 @@ public class CompanyController {
     @PostMapping("/update/{companyId}")
     public String updateCompany(@PathVariable("companyId") Long companyId, @ModelAttribute("company") CompanyDto companyDto){
        companyDto.setId(companyId);
-       companyService.updateCompany(companyDto);
+       companyService.update(companyDto);
        return "redirect:/companies/list";
     }
     
     @PostMapping("/create")
     public String createCompany(@ModelAttribute CompanyDto companyDto){
-        companyService.saveCompany(companyDto);
+        companyService.save(companyDto);
         return "redirect:/companies/list";
     }
     
     @GetMapping("/delete/{companyId}")
     public String deleteCompany(@PathVariable("companyId") Long companyId){
-        companyService.deleteCompany(companyId);
+        companyService.delete(companyId);
         return "redirect:/companies/list";
     }
 
     @GetMapping("/activate/{companyId}")
     public String activateCompany(@PathVariable Long companyId){
-        companyService.activateCompany(companyId);
+        companyService.activate(companyId);
         return "redirect:/companies/list"; 
     }
 
     @GetMapping("/deactivate/{companyId}")
     public String deactivateCompany(@PathVariable Long companyId){
-        companyService.deactivateCompany(companyId);
+        companyService.deactivate(companyId);
         return "redirect:/companies/list";
     }
 }

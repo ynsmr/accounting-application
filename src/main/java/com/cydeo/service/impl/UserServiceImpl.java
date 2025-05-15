@@ -5,6 +5,7 @@ import com.cydeo.entity.User;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,15 +14,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
-
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil) {
-        this.userRepository = userRepository;
-        this.mapperUtil = mapperUtil;
-    }
+    
 
     @Override
     public UserDto findByUsername(String username) {

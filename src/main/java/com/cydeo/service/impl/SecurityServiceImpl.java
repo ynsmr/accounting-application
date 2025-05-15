@@ -5,6 +5,7 @@ import com.cydeo.entity.common.UserPrincipal;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.SecurityService;
 import com.cydeo.service.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -12,13 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class SecurityServiceImpl implements SecurityService {
+    
     private final UserRepository userRepository;
-
-    public SecurityServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user= userRepository.findByUsername(username);
