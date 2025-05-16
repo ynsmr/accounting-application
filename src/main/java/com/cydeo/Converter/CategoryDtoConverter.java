@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationPropertiesBinding
-public class CategoryDtoConverter implements Converter<Long, CategoryDto> {
+public class CategoryDtoConverter implements Converter<String, CategoryDto> {
 
     private final CategoryService categoryService;
 
@@ -18,7 +18,7 @@ public class CategoryDtoConverter implements Converter<Long, CategoryDto> {
     }
 
     @Override
-    public CategoryDto convert(Long source) {
-        return categoryService.findById(source);
+    public CategoryDto convert(String source) {
+        return categoryService.findById(Long.valueOf(source));
     }
 }

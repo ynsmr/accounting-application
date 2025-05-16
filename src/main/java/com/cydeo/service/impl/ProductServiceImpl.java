@@ -1,0 +1,67 @@
+package com.cydeo.service.impl;
+
+import com.cydeo.dto.ProductDto;
+import com.cydeo.entity.Product;
+import com.cydeo.mapper.MapperUtil;
+import com.cydeo.respository.ProductRepository;
+import com.cydeo.service.ProductService;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class ProductServiceImpl implements ProductService {
+    
+    private final ProductRepository productRepository;
+    private final MapperUtil mapperUtil;
+
+
+    @Override
+    public ProductDto findById(Long productId) {
+        return convertToDto(findProductById(productId));
+    }
+
+    @Override
+    public List<ProductDto> listAllProducts() {
+        return productRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteProduct(Long productId) {
+        softDeleteProduct(findProductById(productId));
+    }
+
+    @Override
+    public void saveProduct(ProductDto productDto) {
+        productRepository.save(convertToEntity(productDto));
+    }
+
+    @Override
+    public void updateProduct(ProductDto productDto) {
+        productRepository.save(convertToEntity(productDto));
+    }
+
+    private ProductDto convertToDto(Product product){
+        return mapperUtil.convert(product, new ProductDto());
+    }
+    
+    private Product convertToEntity(ProductDto productDto){
+        return mapperUtil.convert(productDto, new Product());
+    }
+    
+    private Product findProductById(Long productId){
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("No product found with id: " + productId));
+    }
+    
+    private void softDeleteProduct(Product product){
+        product.setIsDeleted(true);
+        productRepository.save(product);
+    }
+}
