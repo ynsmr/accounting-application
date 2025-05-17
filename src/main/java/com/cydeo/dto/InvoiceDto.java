@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.GeneratedValue;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
