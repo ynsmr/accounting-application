@@ -3,9 +3,7 @@ package com.cydeo.dto;
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.GeneratedValue;
 import java.math.BigDecimal;
@@ -21,9 +19,10 @@ public class InvoiceDto {
     private InvoiceStatus invoiceStatus;
     private InvoiceType invoiceType;
     private LocalDate date;
-    private CompanyDto companyDto;
-    private ClientVendorDto clientVendorDto;
+    private CompanyDto company;
+    private ClientVendorDto clientVendor;
     private BigDecimal price;
     private BigDecimal tax;
     private BigDecimal total;
+    
 }

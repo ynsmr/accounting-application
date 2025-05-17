@@ -93,7 +93,7 @@
                                                                                 th:value="''" th:text="'Select'" selected></option>
                                                                         <option th:each= "product:${products}"
                                                                                 th:value="${product.id}"
-                                                                                th:text="${product.name}"></option>
+                                                                                th:text="${product.product.name}"></option>
                                                                     </select>
                                                                 </div>
                                                                 <div th:if="${#fields.hasErrors('product')}">

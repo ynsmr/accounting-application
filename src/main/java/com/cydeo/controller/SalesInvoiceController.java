@@ -6,67 +6,64 @@ import com.cydeo.enums.ClientVendorType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/purchaseInvoices")
-public class PurchaseInvoiceController {
-    
+@RequestMapping("/salesInvoices")
+public class SalesInvoiceController {
+
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final ClientVendorService clientVendorService;
 
-    public PurchaseInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService) {
+    public SalesInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService) {
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.clientVendorService = clientVendorService;
     }
 
     @GetMapping("/list")
-    public String listPurchaseInvoicePage(Model model){
+    public String listSalesInvoicePage(Model model){
         model.addAttribute("invoices", invoiceService.listAllInvoices());
-        return "invoice/purchase-invoice-list";
+        return "/invoice/sales-invoice-list";
     }
     
     @GetMapping("/create")
-    public String createPurchaseInvoicePage(Model model){
-        model.addAttribute("newPurchaseInvoice",invoiceService.getInvoiceTemplate(ClientVendorType.VENDOR));
-        model.addAttribute("vendors", clientVendorService.listAllByType(ClientVendorType.VENDOR));
-        
-        return "invoice/purchase-invoice-create";
+    public String createSalesInvoicePage(Model model){
+        model.addAttribute("newSalesInvoice",invoiceService.getInvoiceTemplate(ClientVendorType.CLIENT));
+        model.addAttribute("clients", clientVendorService.listAllByType(ClientVendorType.CLIENT));
+        return "/invoice/sales-invoice-create";
     }
     
     @GetMapping("/update/{invoiceId}")
-    public String updatePurchaseInvoicePage(@PathVariable("invoiceId") Long invoiceId, Model model){
+    public String updateSalesInvoicePage(@PathVariable("invoiceId") Long invoiceId, Model model){
         model.addAttribute("invoice", invoiceService.findById(invoiceId));
-        model.addAttribute("vendors", clientVendorService.listAllByType(ClientVendorType.VENDOR));
+        model.addAttribute("clients", clientVendorService.listAllByType(ClientVendorType.CLIENT));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
         model.addAttribute("products", invoiceProductService.listAllInvoiceProducts());
         model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
-        return "invoice/purchase-invoice-update";
+        return "/invoice/sales-invoice-update";
     }
     
     @GetMapping("/delete/{invoiceId}")
-    public String deletePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId){
+    public String deleteSalesInvoice(@PathVariable("invoiceId") Long invoiceId){
         invoiceService.deleteInvoiceById(invoiceId);
-        return "redirect:/purchaseInvoices/list";
+        return "redirect:/salesInvoices/list";
     }
     
     @PostMapping("/create")
-    public String createPurchaseInvoice(@ModelAttribute("purchaseInvoice")InvoiceDto invoiceDto){
+    public String createSalesInvoice(@ModelAttribute("salesInvoice")InvoiceDto invoiceDto){
         invoiceService.saveInvoice(invoiceDto);
-        return "redirect:/purchaseInvoices/list";
+        return "redirect:/salesInvoices/list";
     }
     
     @PostMapping("/update/{invoiceId}")
-    public String updatePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("purchaseInvoice") InvoiceDto invoiceDto){
+    public String updateSalesInvoice(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("salesInvoice") InvoiceDto invoiceDto){
         invoiceDto.setId(invoiceId);
         invoiceService.saveInvoice(invoiceDto);
-        return "redirect:/purchaseInvoices/list";
+        return "redirect:/salesInvoices/list";
     }
-
-
-
 }

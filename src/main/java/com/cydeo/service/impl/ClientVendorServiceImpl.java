@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.entity.ClientVendor;
+import com.cydeo.enums.ClientVendorType;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ClientVendorRepository;
 import com.cydeo.service.ClientVendorService;
@@ -27,6 +28,13 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public List<ClientVendorDto> listAll() {
         return clientVendorRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ClientVendorDto> listAllByType(ClientVendorType clientVendorType) {
+        return clientVendorRepository.findAllByClientVendorType(clientVendorType).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

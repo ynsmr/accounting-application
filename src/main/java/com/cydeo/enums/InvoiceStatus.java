@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public enum InvoiceStatus {
-    AWAITING_APPROVAL("Awating Approval"),
+    AWAITING_APPROVAL("Awaiting Approval"),
     APPROVED("Approved");
     
     private final String value;
