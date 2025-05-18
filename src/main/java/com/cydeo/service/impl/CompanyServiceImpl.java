@@ -9,6 +9,7 @@ import com.cydeo.service.CompanyService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public List<CompanyDto> listAllCompanies() {
         return companyRepository.findAll().stream()
+                .filter(company -> !company.getId().equals(1L))
+                .sorted(Comparator.comparing(Company::getCompanyStatus).thenComparing(Company::getTitle))
                 .map(this::convertToCompanyDTO)
                 .collect(Collectors.toList());
     }
