@@ -8,7 +8,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/users")
@@ -33,7 +36,11 @@ public class UserController {
     }
     
     @PostMapping("/create")
-    public String createUser(@ModelAttribute("newUser") UserDto userDto){
+    public String createUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult bindingResult){
+        
+        if (bindingResult.hasErrors()){
+            return "user/user-create";
+        }
         userService.saveUser(userDto);
         return "redirect:/users/list";
     }
@@ -47,7 +54,11 @@ public class UserController {
     }
     
     @PostMapping("/update/{userId}")
-    public String updateUser(@PathVariable("userId") Long userId, @ModelAttribute("user") UserDto userDto){
+    public String updateUser(@PathVariable("userId") Long userId, @Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult){
+       
+        if (bindingResult.hasErrors()){
+            return "user/user-update";
+        }
         userDto.setId(userId);
         userService.updateUser(userDto);
         return "redirect:/users/list";
