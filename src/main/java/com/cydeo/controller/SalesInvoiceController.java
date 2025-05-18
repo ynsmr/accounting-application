@@ -59,7 +59,6 @@ public class SalesInvoiceController {
 
     @GetMapping("/removeInvoiceProduct/{invoiceId}/{invoiceProductId}")
     public String removeInvoiceProduct(@PathVariable("invoiceId") Long invoiceId, @PathVariable("invoiceProductId") Long invoiceProductId){
-
         invoiceProductService.removeInvoiceProduct(invoiceId, invoiceProductId);
         return "redirect:/salesInvoices/update/{invoiceId}";
     }

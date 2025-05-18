@@ -32,7 +32,6 @@ public class UserController {
         return "user/user-create";
     }
     
-    
     @PostMapping("/create")
     public String createUser(@ModelAttribute("newUser") UserDto userDto){
         userService.saveUser(userDto);

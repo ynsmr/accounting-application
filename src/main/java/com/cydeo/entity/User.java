@@ -25,6 +25,7 @@ public class User extends BaseEntity {
     private String firstname;
     private String lastname;
     private String phone;
+    private boolean isAccountNonLocked;
     private boolean enabled;
     @ManyToOne
     private Role role;

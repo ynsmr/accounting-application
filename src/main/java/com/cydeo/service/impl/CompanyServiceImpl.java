@@ -1,12 +1,17 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.CompanyDto;
+import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Company;
+import com.cydeo.entity.User;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CompanyRepository;
 import com.cydeo.service.CompanyService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -19,6 +24,7 @@ import java.util.stream.Collectors;
 public class CompanyServiceImpl implements CompanyService {
     
     private final CompanyRepository companyRepository;
+    private final UserService userService;
     private final MapperUtil mapperUtil;
 
     @Override
@@ -66,15 +72,18 @@ public class CompanyServiceImpl implements CompanyService {
         if (!company.getCompanyStatus().equals(CompanyStatus.ACTIVE)){
             company.setCompanyStatus(CompanyStatus.ACTIVE);
         }
+        userService.findUsersByCompanyId(companyId).forEach(user -> user.setAccountNonLocked(true));
         companyRepository.save(company);
     }
 
     @Override
     public void deactivate(Long companyId) {
         Company company = findCompanyById(companyId);
+        
         if (!company.getCompanyStatus().equals(CompanyStatus.PASSIVE)){
             company.setCompanyStatus(CompanyStatus.PASSIVE);
         }
+        userService.findUsersByCompanyId(companyId).forEach(user -> user.setAccountNonLocked(false));
         companyRepository.save(company);
     }
 

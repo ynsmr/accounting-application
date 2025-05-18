@@ -34,6 +34,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> listAllUsers() {
         return userRepository.findAll().stream()
+                .filter(User::isAccountNonLocked)
+                .filter(user -> !user.getCompany().getId().equals(1L))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -51,6 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(UserDto userDto) {
+        findUserById(userDto.getId()).setAccountNonLocked(true);
         userRepository.save(convertToEntity(userDto));
     }
 
@@ -58,6 +61,11 @@ public class UserServiceImpl implements UserService {
     public void updateUser(UserDto userDto) {
         userRepository.save(convertToEntity(userDto));
         
+    }
+
+    @Override
+    public List<User> findUsersByCompanyId(Long companyId) {
+        return userRepository.findUsersByCompany_Id(companyId);
     }
 
     private User findUserById(Long userId) {
