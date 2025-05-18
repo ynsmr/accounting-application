@@ -7,6 +7,7 @@ import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
 import com.cydeo.service.ProductService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +18,13 @@ public class SalesInvoiceController {
 
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
+    private final ProductService productService;
     private final ClientVendorService clientVendorService;
 
-    public SalesInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService) {
+    public SalesInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ProductService productService, ClientVendorService clientVendorService) {
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
+        this.productService = productService;
         this.clientVendorService = clientVendorService;
     }
 
@@ -43,7 +46,7 @@ public class SalesInvoiceController {
         model.addAttribute("invoice", invoiceService.findById(invoiceId));
         model.addAttribute("clients", clientVendorService.listAllByType(ClientVendorType.CLIENT));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
-        model.addAttribute("products", invoiceProductService.listAllInvoiceProducts());
+        model.addAttribute("products", productService.listAllProducts());
         model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
         return "/invoice/sales-invoice-update";
     }
@@ -52,6 +55,12 @@ public class SalesInvoiceController {
     public String deleteSalesInvoice(@PathVariable("invoiceId") Long invoiceId){
         invoiceService.deleteInvoiceById(invoiceId);
         return "redirect:/salesInvoices/list";
+    }
+
+    @PostMapping("/addInvoiceProduct/{invoiceId}")
+    public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("invoiceProduct") InvoiceProductDto invoiceProductDto){
+        invoiceProductService.addInvoiceProduct(invoiceProductDto, invoiceId);
+        return "redirect:/salesInvoices/update/{invoiceId}";
     }
     
     @PostMapping("/create")

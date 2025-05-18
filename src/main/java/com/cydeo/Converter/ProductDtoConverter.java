@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationPropertiesBinding
-public class ProductDTOConverter implements Converter<String, ProductDto> {
+public class ProductDtoConverter implements Converter<String, ProductDto> {
     
     private final ProductService productService;
 
-    public ProductDTOConverter(@Lazy ProductService productService) {
+    public ProductDtoConverter(@Lazy ProductService productService) {
         this.productService = productService;
     }
 

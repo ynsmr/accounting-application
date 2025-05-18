@@ -1,6 +1,7 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.InvoiceDto;
+import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.InvoiceStatus;
@@ -54,6 +55,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     }
     
+
     @Override
     public InvoiceDto getInvoiceTemplate(ClientVendorType clientVendorType) {
         InvoiceDto template = new InvoiceDto();

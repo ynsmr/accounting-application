@@ -6,6 +6,8 @@ import com.cydeo.enums.ClientVendorType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.service.ProductService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +19,13 @@ public class PurchaseInvoiceController {
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final ClientVendorService clientVendorService;
+    private final ProductService productService;
 
-    public PurchaseInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService) {
+    public PurchaseInvoiceController(InvoiceService invoiceService, InvoiceProductService invoiceProductService, ClientVendorService clientVendorService, ProductService productService) {
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.clientVendorService = clientVendorService;
+        this.productService = productService;
     }
 
     @GetMapping("/list")
@@ -43,7 +47,7 @@ public class PurchaseInvoiceController {
         model.addAttribute("invoice", invoiceService.findById(invoiceId));
         model.addAttribute("vendors", clientVendorService.listAllByType(ClientVendorType.VENDOR));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDto());
-        model.addAttribute("products", invoiceProductService.listAllInvoiceProducts());
+        model.addAttribute("products", productService.listAllProducts());
         model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
         return "invoice/purchase-invoice-update";
     }
@@ -52,6 +56,12 @@ public class PurchaseInvoiceController {
     public String deletePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId){
         invoiceService.deleteInvoiceById(invoiceId);
         return "redirect:/purchaseInvoices/list";
+    }
+    
+    @PostMapping("/addInvoiceProduct/{invoiceId}")
+    public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("invoiceProduct") InvoiceProductDto invoiceProductDto){
+        invoiceProductService.addInvoiceProduct(invoiceProductDto, invoiceId);
+        return "redirect:/purchaseInvoices/update/{invoiceId}";
     }
     
     @PostMapping("/create")

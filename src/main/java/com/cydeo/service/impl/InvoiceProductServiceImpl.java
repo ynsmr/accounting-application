@@ -1,13 +1,16 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
+import com.cydeo.service.InvoiceService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.lang.ref.PhantomReference;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,8 +23,10 @@ import static org.yaml.snakeyaml.nodes.NodeId.sequence;
 public class InvoiceProductServiceImpl implements InvoiceProductService {
     
     private final InvoiceProductRepository invoiceProductRepository;
+    private final InvoiceService invoiceService;
     private final MapperUtil mapperUtil;
-    
+
+
     @Override
     public List<InvoiceProductDto> listAllInvoiceProducts() {
         return invoiceProductRepository.findAll().stream()
@@ -49,6 +54,13 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProductRepository.save(convertToEntity(invoiceProductDto));
 
     }
+
+    @Override
+    public void addInvoiceProduct(InvoiceProductDto invoiceProductDto, Long id) {
+        invoiceProductDto.setInvoice(invoiceService.findById(id));
+        invoiceProductRepository.save(convertToEntity(invoiceProductDto));
+    }
+
 
     @Override
     public List<InvoiceProductDto> findInvoiceProductsByInvoiceId(Long invoiceId) {
