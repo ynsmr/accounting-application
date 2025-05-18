@@ -39,12 +39,11 @@ public class CompanyController {
     }
     
     @PostMapping("/update/{companyId}")
-    public String updateCompany(@PathVariable("companyId") Long companyId, @Valid @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult){
-        
+    public String updateCompany(@Valid @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult, @PathVariable("companyId") Long companyId){
+        companyDto.setId(companyId);
         if (bindingResult.hasErrors()){
             return "company/company-update";
         }
-       companyDto.setId(companyId);
        companyService.update(companyDto);
        return "redirect:/companies/list";
     }
