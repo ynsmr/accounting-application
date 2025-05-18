@@ -69,6 +69,14 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void removeInvoiceProduct(Long invoiceId, Long invoiceProductId) {
+        InvoiceProduct invoiceProductById = findInvoiceProductById(invoiceProductId);
+        softDeleteInvoiceProduct(invoiceProductById);
+        invoiceService.updateInvoice(invoiceService.findById(invoiceId));
+        
+    }
+
     private InvoiceProductDto convertToDto(InvoiceProduct invoiceProduct){
         return mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
     }

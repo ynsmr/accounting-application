@@ -14,5 +14,5 @@ public interface InvoiceProductService {
     void updateInvoiceProduct(InvoiceProductDto invoiceProductDto);
     void addInvoiceProduct(InvoiceProductDto invoiceProductDto, Long id);
     List<InvoiceProductDto> findInvoiceProductsByInvoiceId(Long invoiceId);
-
+    void removeInvoiceProduct(Long invoiceId, Long invoiceProductId);
 }
