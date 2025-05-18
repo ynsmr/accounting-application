@@ -5,7 +5,10 @@ import com.cydeo.service.CompanyService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/companies")
@@ -36,14 +39,22 @@ public class CompanyController {
     }
     
     @PostMapping("/update/{companyId}")
-    public String updateCompany(@PathVariable("companyId") Long companyId, @ModelAttribute("company") CompanyDto companyDto){
+    public String updateCompany(@PathVariable("companyId") Long companyId, @Valid @ModelAttribute("company") CompanyDto companyDto, BindingResult bindingResult){
+        
+        if (bindingResult.hasErrors()){
+            return "company/company-update";
+        }
        companyDto.setId(companyId);
        companyService.update(companyDto);
        return "redirect:/companies/list";
     }
     
     @PostMapping("/create")
-    public String createCompany(@ModelAttribute CompanyDto companyDto){
+    public String createCompany(@Valid @ModelAttribute("newCompany") CompanyDto companyDto, BindingResult bindingResult){
+        
+        if (bindingResult.hasErrors()){
+            return "company/company-create";
+        }
         companyService.save(companyDto);
         return "redirect:/companies/list";
     }
