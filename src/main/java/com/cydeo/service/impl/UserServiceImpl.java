@@ -6,6 +6,7 @@ import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,9 +34,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> listAllUsers() {
+        String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findAll().stream()
                 .filter(User::isAccountNonLocked)
                 .filter(user -> !user.getCompany().getId().equals(1L))
+                .filter(user -> user.getCompany().getId().equals(findByUsername(loggedInUser).getCompany().getId()))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

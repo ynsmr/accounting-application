@@ -18,8 +18,10 @@ import javax.validation.constraints.Size;
 public class CompanyDto {
     
     private Long id;
+    @NotBlank(message = "Title is a requied field.")
     @Size(min = 2, max = 10, message = "Title should be 2-100 characters long.")
     private String title;
+    @NotBlank(message = "Phone is a required field.")
     @Pattern(regexp = "^d {5}([-]|s*)?(d {4})?$", message = "Phone number should be in valid format.")
     private String phone;
     @NotBlank(message = "Website is a required field.")
