@@ -39,7 +39,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
 
     @Override
     public List<UserDto> listAllUsers() {
-        UserDto loggedInUser = getLoggedInUser();
+        User loggedInUser = getLoggedInUser();
         userIsOnlyAdmin(loggedInUser);
         
         if (!notARootUser() && !isAdminUser()) {
@@ -72,7 +72,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
         return user.isAccountNonLocked();
     }
     
-    private boolean isSameCompanyAsLoggedInUser(User user, UserDto loggedInUser) {
+    private boolean isSameCompanyAsLoggedInUser(User user, User loggedInUser) {
         return user.getCompany().getId().equals(loggedInUser.getCompany().getId());
     }
 
@@ -111,7 +111,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
     }
 
     @Override
-    public boolean userIsOnlyAdmin(UserDto userDto) {
+    public boolean userIsOnlyAdmin(User user) {
         // If the user has Admin role in their authentication, they pass the check
         if (hasAdminAuthority()) {
             return true;
@@ -165,9 +165,10 @@ private static final Long ADMIN_ROLE_ID = 2L;
     }
     
     @Override
-    public UserDto getLoggedInUser(){
+    public User getLoggedInUser(){
         String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        return findByUsername(loggedInUser);
+        return userRepository.findByUsername(loggedInUser)
+                .orElseThrow(()-> new NoSuchElementException("Current user not found in DB."));
     }
     
 }

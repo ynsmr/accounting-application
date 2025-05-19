@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
 @AllArgsConstructor
 public class UniqueUsernameValidator implements ConstraintValidator<UniqueUserName, String> {
     

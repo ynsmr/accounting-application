@@ -6,9 +6,11 @@ import com.cydeo.enums.ClientVendorType;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ClientVendorRepository;
 import com.cydeo.service.ClientVendorService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class ClientVendorServiceImpl implements ClientVendorService {
     
     private final ClientVendorRepository clientVendorRepository;
+    private final UserService userService;
     private final MapperUtil mapperUtil;
     
     @Override
@@ -28,6 +31,8 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     @Override
     public List<ClientVendorDto> listAll() {
         return clientVendorRepository.findAll().stream()
+                .filter(clientVendor -> userService.getLoggedInUser().getCompany().getId().equals(clientVendor.getCompany().getId()))
+                .sorted(Comparator.comparing(ClientVendor::getClientVendorType).thenComparing(ClientVendor::getClientVendorName))
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
