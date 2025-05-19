@@ -5,6 +5,7 @@ import com.cydeo.service.CompanyService;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.Banner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,12 +58,13 @@ public class UserController {
     }
     
     @PostMapping("/update/{userId}")
-    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, @PathVariable("userId") Long userId){
-       
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, @PathVariable("userId") Long userId, Model model){
+        userDto.setId(userId);
         if (bindingResult.hasErrors()){
+            model.addAttribute("userRoles", roleService.listAllRoles());
+            model.addAttribute("companies", companyService.listAllCompanies());
             return "user/user-update";
         }
-        userDto.setId(userId);
         userService.updateUser(userDto);
         return "redirect:/users/list";
     }

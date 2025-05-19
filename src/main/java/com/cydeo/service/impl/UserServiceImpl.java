@@ -4,6 +4,7 @@ import com.cydeo.dto.UserDto;
 import com.cydeo.entity.User;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
+import com.cydeo.service.CompanyService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,10 +13,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +24,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
     
+private static final String ADMIN_ROLE = "Admin";
+private static final Long ADMIN_ROLE_ID = 2L;
+
 
     @Override
     public UserDto findByUsername(String username) {
@@ -37,13 +39,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> listAllUsers() {
-        userIsOnlyAdmin(getLoggedInUser());
+        UserDto loggedInUser = getLoggedInUser();
+        userIsOnlyAdmin(loggedInUser);
+        
+        if (!notARootUser() && !isAdminUser()) {
+            // Root user who is not admin - show only admin users
+            return filterAndMapUsers(
+                user -> isActiveUser(user) && user.getRole().getId().equals(2L)
+            );
+        }
+        
+        // For admin users and the default case (including root+admin users)
+        return filterAndMapUsers(
+            user -> isActiveUser(user) && isSameCompanyAsLoggedInUser(user, loggedInUser)
+        );
+    }
+
+    /**
+     * Filters, sorts and maps users based on the provided filtering predicate
+     * @param filterPredicate Predicate to filter users
+     * @return List of filtered and mapped UserDto objects
+     */
+    private List<UserDto> filterAndMapUsers(Predicate<User> filterPredicate) {
         return userRepository.findAll().stream()
-                .filter(User::isAccountNonLocked)
-                .filter(user -> !user.getCompany().getId().equals(1L))
-                .filter(user -> user.getCompany().getId().equals(getLoggedInUser().getCompany().getId()))
+                .filter(filterPredicate)
+                .sorted(createUserComparator())
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isActiveUser(User user) {
+        return user.isAccountNonLocked();
+    }
+    
+    private boolean isSameCompanyAsLoggedInUser(User user, UserDto loggedInUser) {
+        return user.getCompany().getId().equals(loggedInUser.getCompany().getId());
+    }
+
+    private Comparator<User> createUserComparator() {
+        return Comparator
+                .comparing((User user) -> user.getCompany().getTitle())
+                .thenComparing(user -> user.getRole().getDescription());
     }
 
     @Override
@@ -76,9 +112,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean userIsOnlyAdmin(UserDto userDto) {
+        // If the user has Admin role in their authentication, they pass the check
+        if (hasAdminAuthority()) {
+            return true;
+        }
+        
+        // Otherwise, check if they are the only admin in their company
+        return isOnlyAdminInCompany();
+    }
+
+    private boolean hasAdminAuthority() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-        return roles.contains("Admin") && roles.size() == 1;
+        return roles.contains(ADMIN_ROLE);
+    }
+
+    private boolean isOnlyAdminInCompany() {
+        // Count the number of admin users (with role ID 2)
+        long adminCount = userRepository.findAll().stream()
+                .filter(user -> user.isAccountNonLocked() && user.getRole().getId().equals(ADMIN_ROLE_ID))
+                .count();
+        
+        return adminCount == 1L;
     }
 
     @Override
@@ -102,6 +157,10 @@ public class UserServiceImpl implements UserService {
     
     private User convertToEntity(UserDto userDto){
         return mapperUtil.convert(userDto, new User());
+    }
+    
+    private boolean isAdminUser(){
+        return getLoggedInUser().getRole().getId().equals(2L);
     }
     
     @Override
