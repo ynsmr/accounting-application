@@ -15,7 +15,7 @@ import javax.validation.constraints.*;
 public class UserDto {
     
     private Long id;
-    @NotBlank(message = "Username is a requiured field.")
+    @NotBlank(message = "Username is a required field.")
     @Email
     @UniqueUserName
     private String username;
@@ -28,11 +28,13 @@ public class UserDto {
     @Size(min = 2, max = 50, message = "Firstname should be 2-50 character long.")
     private String firstname;
     @NotBlank(message = "Last name is a required field.")
-    @Size(min = 2, max = 50, message = "Lasttname should be 2-50 character long.")
+    @Size(min = 2, max = 50, message = "Lastname should be 2-50 character long.")
     private String lastname;
     @NotBlank(message = "Phone is a requied field.")
     @Pattern(regexp = "^d {5}([-]|s*)?(d {4})?$", message = "Phone number should be in valid format.")
     private String phone;
+    @NotNull(message = "Please select a role.")
+    @Valid
     private RoleDto role;
     @Valid
     private CompanyDto company;

@@ -5,7 +5,9 @@ import com.cydeo.entity.Role;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.RoleRepository;
 import com.cydeo.service.RoleService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +20,13 @@ public class RoleServiceImpl implements RoleService {
     
     private final RoleRepository roleRepository;
     private final MapperUtil mapperUtil;
+    private final UserService userService;
     
     @Override
     public List<RoleDto> listAllRoles() {
+        String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
         return roleRepository.findAll().stream()
+                .filter(role -> !role.getId().equals(1L))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

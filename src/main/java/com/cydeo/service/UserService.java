@@ -21,4 +21,10 @@ public interface UserService {
     
     List<User> findUsersByCompanyId(Long companyId);
     
+    boolean userIsOnlyAdmin(UserDto userDto);
+    
+    boolean notARootUser();
+    
+    UserDto getLoggedInUser();
+    
 }

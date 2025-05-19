@@ -36,9 +36,12 @@ public class UserController {
     }
     
     @PostMapping("/create")
-    public String createUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult bindingResult){
+    public String createUser(@Valid @ModelAttribute("newUser") UserDto userDto, BindingResult bindingResult, Model model){
+        
         
         if (bindingResult.hasErrors()){
+            model.addAttribute("userRoles", roleService.listAllRoles());
+            model.addAttribute("companies", companyService.listAllCompanies());
             return "user/user-create";
         }
         userService.saveUser(userDto);
@@ -54,7 +57,7 @@ public class UserController {
     }
     
     @PostMapping("/update/{userId}")
-    public String updateUser(@PathVariable("userId") Long userId, @Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult){
+    public String updateUser(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, @PathVariable("userId") Long userId){
        
         if (bindingResult.hasErrors()){
             return "user/user-update";

@@ -36,11 +36,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyDto> listAllCompanies() {
-        return companyRepository.findAll().stream()
-                .filter(company -> !company.getId().equals(1L))
-                .sorted(Comparator.comparing(Company::getCompanyStatus).thenComparing(Company::getTitle))
-                .map(this::convertToCompanyDTO)
-                .collect(Collectors.toList());
+        boolean isCurrentUserCompanyOnly = userService.notARootUser();
+        return getFilteredCompanies(isCurrentUserCompanyOnly);
     }
 
     @Override
@@ -104,5 +101,18 @@ public class CompanyServiceImpl implements CompanyService {
     private void softDeleteCompany(Company company){
         company.setIsDeleted(true);
         companyRepository.save(company);
+    }
+
+    private List<CompanyDto> getFilteredCompanies(boolean filterByCurrentUserCompany) {
+        List<Company> allCompanies = companyRepository.findAll();
+        
+        return allCompanies.stream()
+                .filter(company -> !company.getId().equals(1L))
+                .filter(company -> !filterByCurrentUserCompany || 
+                        company.getId().equals(userService.getLoggedInUser().getId()))
+                .sorted(Comparator.comparing(Company::getCompanyStatus)
+                        .thenComparing(Company::getTitle))
+                .map(this::convertToCompanyDTO)
+                .collect(Collectors.toList());
     }
 }

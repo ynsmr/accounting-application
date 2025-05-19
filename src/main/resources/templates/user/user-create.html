@@ -132,7 +132,7 @@
                                                                 <div class="controls">
                                                                     <label>Role</label>
                                                                     <select id="role" name="role" class="custom-select"
-                                                                            th:with="role=*{role}">
+                                                                            th:field="*{role}">
                                                                         <option th:if="${userRoles.size() > 1}"
                                                                                 th:value="''"
                                                                                 th:text="'Select'"></option>

@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 public class CompanyDto {
     
     private Long id;
-    @NotBlank(message = "Title is a requied field.")
+    @NotBlank(message = "Title is a required field.")
     @Size(min = 2, max = 10, message = "Title should be 2-100 characters long.")
     private String title;
     @NotBlank(message = "Phone is a required field.")

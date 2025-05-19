@@ -6,12 +6,16 @@ import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +29,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto findByUsername(String username) {
         Optional<User> userRetrieved = userRepository.findByUsername(username);
-        
         if (userRetrieved.isEmpty()){
             throw new NoSuchElementException("No such user found on DB");
         }
@@ -34,11 +37,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> listAllUsers() {
-        String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        userIsOnlyAdmin(getLoggedInUser());
         return userRepository.findAll().stream()
                 .filter(User::isAccountNonLocked)
                 .filter(user -> !user.getCompany().getId().equals(1L))
-                .filter(user -> user.getCompany().getId().equals(findByUsername(loggedInUser).getCompany().getId()))
+                .filter(user -> user.getCompany().getId().equals(getLoggedInUser().getCompany().getId()))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -71,6 +74,18 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUsersByCompany_Id(companyId);
     }
 
+    @Override
+    public boolean userIsOnlyAdmin(UserDto userDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        return roles.contains("Admin") && roles.size() == 1;
+    }
+
+    @Override
+    public boolean notARootUser() {
+        return !getLoggedInUser().getRole().getId().equals(1L);
+    }
+
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " does not exist"));
@@ -88,4 +103,11 @@ public class UserServiceImpl implements UserService {
     private User convertToEntity(UserDto userDto){
         return mapperUtil.convert(userDto, new User());
     }
+    
+    @Override
+    public UserDto getLoggedInUser(){
+        String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        return findByUsername(loggedInUser);
+    }
+    
 }
