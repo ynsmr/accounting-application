@@ -148,6 +148,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
     
     private void softDeleteUser(User user) {
         user.setIsDeleted(true);
+        user.setUsername(user.getUsername()+ "-- VOID");
         userRepository.save(user);
     }
 
