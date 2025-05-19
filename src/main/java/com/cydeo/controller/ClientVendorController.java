@@ -5,8 +5,10 @@ import com.cydeo.enums.ClientVendorType;
 import com.cydeo.service.ClientVendorService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 
 @Controller
@@ -29,7 +31,6 @@ public class ClientVendorController {
     public String createClientVendorPage(Model model){
         model.addAttribute("newClientVendor", new ClientVendorDto());
         model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
-        
         return "clientVendor/clientVendor-create";
     }
 
@@ -47,14 +48,24 @@ public class ClientVendorController {
     }
 
     @PostMapping("/create")
-    public String createClientVendor(@ModelAttribute("clientVendor") ClientVendorDto clientVendorDto){
+    public String createClientVendor(@Valid @ModelAttribute("newClientVendor") ClientVendorDto clientVendorDto, BindingResult bindingResult, Model model){
+        
+        if (bindingResult.hasErrors()){
+            model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+            return "clientVendor/clientVendor-create";
+        }
         clientVendorService.saveClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }
 
     @PostMapping("/update/{clientVendorId}")
-    public String updateClientVendor(@ModelAttribute("clientVendor") ClientVendorDto clientVendorDto, @PathVariable("clientVendorId") Long clientVendorId){
+    public String updateClientVendor(@Valid @ModelAttribute("clientVendor") ClientVendorDto clientVendorDto, @PathVariable("clientVendorId") Long clientVendorId, BindingResult bindingResult, Model model){
         clientVendorDto.setId(clientVendorId);
+        if (bindingResult.hasErrors()){
+            model.addAttribute("clientVendor", clientVendorDto);
+            model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+            return "clientVendor/clientVendor-update";
+        }
         clientVendorService.updateClientVendor(clientVendorDto);
         return "redirect:/clientVendors/list";
     }
