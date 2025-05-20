@@ -10,6 +10,7 @@ import com.cydeo.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDto> listAllProducts() {
         return productRepository.findAll().stream()
+                .sorted(Comparator.comparing((Product product) -> product.getCategory().getDescription()).thenComparing(Product::getName))
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
