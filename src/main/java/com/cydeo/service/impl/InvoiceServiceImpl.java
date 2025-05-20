@@ -64,6 +64,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         return template;
     }
 
+    @Override
+    public boolean clientVendorHasInvoice(Long clientVendorId) {
+        return invoiceRepository.existsByClientVendor_Id(clientVendorId);
+    }
+
     private InvoiceDto convertToDto(Invoice invoice){
         return mapperUtil.convert(invoice, new InvoiceDto());
     }

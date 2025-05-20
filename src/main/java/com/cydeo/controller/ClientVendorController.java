@@ -59,8 +59,9 @@ public class ClientVendorController {
     }
 
     @PostMapping("/update/{clientVendorId}")
-    public String updateClientVendor(@Valid @ModelAttribute("clientVendor") ClientVendorDto clientVendorDto, @PathVariable("clientVendorId") Long clientVendorId, BindingResult bindingResult, Model model){
+    public String updateClientVendor(@Valid @ModelAttribute("clientVendor") ClientVendorDto clientVendorDto, BindingResult bindingResult, @PathVariable("clientVendorId") Long clientVendorId, Model model){
         clientVendorDto.setId(clientVendorId);
+        
         if (bindingResult.hasErrors()){
             model.addAttribute("clientVendor", clientVendorDto);
             model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));

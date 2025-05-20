@@ -15,4 +15,5 @@ public interface InvoiceService {
     void saveInvoice(InvoiceDto invoiceDto);
     void updateInvoice(InvoiceDto invoiceDto);
     InvoiceDto getInvoiceTemplate(ClientVendorType clientVendorType);
+    boolean clientVendorHasInvoice(Long clientVendorId);
 }

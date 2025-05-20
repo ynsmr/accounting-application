@@ -6,6 +6,7 @@ import com.cydeo.enums.ClientVendorType;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ClientVendorRepository;
 import com.cydeo.service.ClientVendorService;
+import com.cydeo.service.InvoiceService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     
     private final ClientVendorRepository clientVendorRepository;
     private final UserService userService;
+    private final InvoiceService invoiceService;
     private final MapperUtil mapperUtil;
     
     @Override
@@ -34,6 +36,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
                 .filter(clientVendor -> userService.getLoggedInUser().getCompany().getId().equals(clientVendor.getCompany().getId()))
                 .sorted(Comparator.comparing(ClientVendor::getClientVendorType).thenComparing(ClientVendor::getClientVendorName))
                 .map(this::convertToDto)
+                .peek(clientVendorDto -> clientVendorDto.setHasInvoice(invoiceService.clientVendorHasInvoice(clientVendorDto.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -41,6 +44,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     public List<ClientVendorDto> listAllByType(ClientVendorType clientVendorType) {
         return clientVendorRepository.findAllByClientVendorType(clientVendorType).stream()
                 .map(this::convertToDto)
+                .peek(clientVendorDto -> clientVendorDto.setHasInvoice(invoiceService.clientVendorHasInvoice(clientVendorDto.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -61,6 +65,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     }
     
+
     private ClientVendor findClientVendorById(Long id){
         return clientVendorRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No such client/vendor found"));
