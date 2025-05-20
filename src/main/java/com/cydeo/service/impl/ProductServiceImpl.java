@@ -1,6 +1,8 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.ProductDto;
+import com.cydeo.entity.Category;
+import com.cydeo.entity.Company;
 import com.cydeo.entity.Product;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ProductRepository;
@@ -45,6 +47,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateProduct(ProductDto productDto) {
         productRepository.save(convertToEntity(productDto));
+    }
+
+    @Override
+    public boolean categoryHasProduct(Long categoryId) {
+        return productRepository.existsByCategory_Id(categoryId);
     }
 
     private ProductDto convertToDto(Product product){

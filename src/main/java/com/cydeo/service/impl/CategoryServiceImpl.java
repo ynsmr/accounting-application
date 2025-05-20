@@ -6,6 +6,7 @@ import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CategoryRepository;
 import com.cydeo.service.CategoryService;
 import com.cydeo.service.CompanyService;
+import com.cydeo.service.ProductService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,11 +24,14 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserService userService;
     private final CompanyService companyService;
+    private final ProductService productService;
     private final MapperUtil mapperUtil;
 
     @Override
     public CategoryDto findById(Long categoryId) {
-        return convertToDto(findCategoryById(categoryId));
+        CategoryDto categoryDto = convertToDto(findCategoryById(categoryId));
+        categoryDto.setHasProduct(productService.categoryHasProduct(categoryId));
+        return categoryDto;
     }
 
     @Override
@@ -36,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .filter(category -> category.getCompany() != null && 
                                category.getCompany().getId().equals(userService.getLoggedInUser().getId()))
                 .map(this::convertToDto)
+                .peek(categoryDto -> categoryDto.setHasProduct(productService.categoryHasProduct(categoryDto.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -76,5 +81,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NoSuchElementException("No such category found"));
     }
+    
+ 
     
 }
