@@ -27,7 +27,6 @@ public class ProductController {
     @GetMapping("/list")
     public String listProductsPage(Model model){
         model.addAttribute("products", productService.listAllProducts());
-        
         return "product/product-list";
     }
     
@@ -50,7 +49,6 @@ public class ProductController {
     
     @GetMapping("/delete/{productId}")
     public String deleteProduct(@PathVariable("productId") Long productId){
-        
         productService.deleteProduct(productId);
         return "redirect:/products/list";
     }
