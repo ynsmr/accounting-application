@@ -14,6 +14,7 @@ public interface CompanyService {
     void update(CompanyDto companyDto);
     void activate(Long companyId);
     void deactivate(Long companyId);
+    Long retrieveCurrentCompany();
     
     
 }

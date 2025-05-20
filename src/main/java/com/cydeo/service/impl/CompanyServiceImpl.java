@@ -84,6 +84,11 @@ public class CompanyServiceImpl implements CompanyService {
         companyRepository.save(company);
     }
 
+    @Override
+    public Long retrieveCurrentCompany() {
+        return userService.getLoggedInUser().getCompany().getId();
+    }
+
     private CompanyDto convertToCompanyDTO(Company company){
         return mapperUtil.convert(company, new CompanyDto());
     }

@@ -4,7 +4,10 @@ import com.cydeo.dto.CategoryDto;
 import com.cydeo.service.CategoryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/categories")
@@ -41,15 +44,22 @@ public class CategoryController {
     }
 
     @PostMapping("/update/{categoryId}")
-    public String updateCategory(@PathVariable("categoryId") Long categoryId, @ModelAttribute("category") CategoryDto categoryDto){
+    public String updateCategory(@Valid @ModelAttribute("category") CategoryDto categoryDto,BindingResult bindingResult, @PathVariable("categoryId") Long categoryId ){
         categoryDto.setId(categoryId);
-        categoryService.updateCategory(categoryDto);
+        if (bindingResult.hasErrors()){
+            return "category/category-update";
+        }
         
+        categoryService.updateCategory(categoryDto);
         return "redirect:/categories/list";
     }
     
     @PostMapping("/create")
-    public String createCategory(@ModelAttribute CategoryDto categoryDto){
+    public String createCategory(@Valid @ModelAttribute("newCategory") CategoryDto categoryDto, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return "category/category-create";
+        }
+        
         categoryService.saveCategory(categoryDto);
         return "redirect:/categories/list";
     }

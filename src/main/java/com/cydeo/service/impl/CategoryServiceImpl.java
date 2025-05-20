@@ -5,12 +5,15 @@ import com.cydeo.entity.Category;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CategoryRepository;
 import com.cydeo.service.CategoryService;
+import com.cydeo.service.CompanyService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.lang.ref.PhantomReference;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +21,8 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
     
     private final CategoryRepository categoryRepository;
+    private final UserService userService;
+    private final CompanyService companyService;
     private final MapperUtil mapperUtil;
 
     @Override
@@ -28,19 +33,24 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDto> findAll() {
         return categoryRepository.findAll().stream()
+                .filter(category -> category.getCompany() != null && 
+                               category.getCompany().getId().equals(userService.getLoggedInUser().getId()))
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void saveCategory(CategoryDto categoryDto) {
+        categoryDto.setCompany(companyService.findById(companyService.retrieveCurrentCompany()));
         categoryRepository.save(convertToEntity(categoryDto));
 
     }
 
     @Override
     public void updateCategory(CategoryDto categoryDto) {
-        categoryRepository.save(convertToEntity(categoryDto));
+        Category category = findCategoryById(categoryDto.getId());
+        category.setDescription(categoryDto.getDescription());
+        categoryRepository.save(category);
     }
 
     @Override
