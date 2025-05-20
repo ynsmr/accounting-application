@@ -117,33 +117,6 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         return price.multiply(taxMultiplier).multiply(BigDecimal.valueOf(quantity));
     }
     
-
-    public BigDecimal calculateGrandTotal(Long invoiceId) {
-        return findInvoiceProductsByInvoiceId(invoiceId).stream()
-            .map(InvoiceProductDto::getTotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
     
-
-    public BigDecimal calculateGrandTax(Long invoiceId) {
-        List<InvoiceProductDto> invoiceProducts = findInvoiceProductsByInvoiceId(invoiceId);
-        
-        // Calculate total without tax
-        BigDecimal totalWithoutTax = invoiceProducts.stream()
-                .map(product -> product.getPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        // Get the grand total with tax
-        BigDecimal total = calculateGrandTotal(invoiceId);
-        
-        // Prevent division by zero
-        if (totalWithoutTax.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        
-        // Calculate the effective tax rate (total tax amount / total without tax)
-        return total.subtract(totalWithoutTax)
-                .divide(totalWithoutTax, 4, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(100));
-}
 
 }

@@ -5,6 +5,7 @@ import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.ClientVendorType;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface InvoiceService {
@@ -16,4 +17,7 @@ public interface InvoiceService {
     void updateInvoice(InvoiceDto invoiceDto);
     InvoiceDto getInvoiceTemplate(ClientVendorType clientVendorType);
     boolean clientVendorHasInvoice(Long clientVendorId);
+    BigDecimal calculateGrandTotal(Long invoiceId);
+    BigDecimal calculateGrandTax(Long invoiceId);
+    BigDecimal calculateInvoicePrice(Long invoiceId);
 }

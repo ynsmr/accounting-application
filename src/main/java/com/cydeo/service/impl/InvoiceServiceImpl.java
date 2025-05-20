@@ -10,34 +10,49 @@ import com.cydeo.respository.InvoiceRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
 
     private static final String INVOICE_NUMBER_SEPARATOR = "-";
     private final InvoiceRepository invoiceRepository;
     private final InvoiceProductService invoiceProductService;
     private final MapperUtil mapperUtil;
-    
+
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, MapperUtil mapperUtil) {
+        this.invoiceRepository = invoiceRepository;
+        this.invoiceProductService = invoiceProductService;
+        this.mapperUtil = mapperUtil;
+    }
 
     @Override
     public List<InvoiceDto> listAllInvoices() {
         return invoiceRepository.findAll().stream()
                 .map(this::convertToDto)
+                .peek(invoiceDto -> {
+                    invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
+                    invoiceDto.setTax(calculateGrandTax(invoiceDto.getId()));
+                    invoiceDto.setPrice(calculateInvoicePrice(invoiceDto.getId()));
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public InvoiceDto findById(Long invoiceId) {
-        return convertToDto(findInvoiceById(invoiceId));
+        InvoiceDto invoiceDto = convertToDto(findInvoiceById(invoiceId));
+        invoiceDto.setTotal(calculateGrandTotal(invoiceId));
+        invoiceDto.setPrice(calculateInvoicePrice(invoiceId));
+        invoiceDto.setTax(calculateGrandTax(invoiceId));
+        return invoiceDto;
     }
 
     @Override
@@ -57,7 +72,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(convertToEntity(invoiceDto));
 
     }
-    
+
 
     @Override
     public InvoiceDto getInvoiceTemplate(ClientVendorType clientVendorType) {
@@ -68,24 +83,53 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public BigDecimal calculateGrandTotal(Long invoiceId) {
+        return invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId).stream()
+                .map(InvoiceProductDto::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add).round(MathContext.DECIMAL32);
+    }
+
+    @Override
+    public BigDecimal calculateGrandTax(Long invoiceId) {
+        // Calculate total without tax
+        BigDecimal totalWithoutTax = calculateInvoicePrice(invoiceId);
+
+        // Get the grand total with tax
+        BigDecimal total = calculateGrandTotal(invoiceId).round(MathContext.DECIMAL32);
+        return total.subtract(totalWithoutTax);
+
+    }
+
+    @Override
+    public BigDecimal calculateInvoicePrice(Long invoiceId) {
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId);
+        // Calculate total without tax
+        BigDecimal totalWithoutTax = invoiceProducts.stream()
+                .map(product -> product.getPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add).round(MathContext.DECIMAL32);
+        return totalWithoutTax;
+    }
+
+
+    @Override
     public boolean clientVendorHasInvoice(Long clientVendorId) {
         return invoiceRepository.existsByClientVendor_Id(clientVendorId);
     }
 
-    private InvoiceDto convertToDto(Invoice invoice){
+    private InvoiceDto convertToDto(Invoice invoice) {
         return mapperUtil.convert(invoice, new InvoiceDto());
     }
-    
-    private Invoice convertToEntity(InvoiceDto invoiceDto){
-       return mapperUtil.convert(invoiceDto, new Invoice());
+
+    private Invoice convertToEntity(InvoiceDto invoiceDto) {
+        return mapperUtil.convert(invoiceDto, new Invoice());
     }
-    
-    private Invoice findInvoiceById(Long invoiceId){
+
+    private Invoice findInvoiceById(Long invoiceId) {
         return invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new NoSuchElementException("No invoice found with id: " + invoiceId));
     }
-    
-    private void softDeleteInvoice(Invoice invoice){
+
+    private void softDeleteInvoice(Invoice invoice) {
         invoice.setIsDeleted(true);
         invoiceRepository.save(invoice);
     }
