@@ -63,6 +63,15 @@ public class PurchaseInvoiceController {
         return "redirect:/purchaseInvoices/update/{invoiceId}";
     }
     
+    @GetMapping("/print/{invoiceId}")
+    public String printPurchaseInvoicePage(@PathVariable("invoiceId") Long invoiceId, Model model){
+        model.addAttribute("invoice", invoiceService.findById(invoiceId));
+        model.addAttribute("company", invoiceService.findById(invoiceId).getCompany());
+        model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
+        
+        return "invoice/invoice-print";
+    }
+    
     @PostMapping("/addInvoiceProduct/{invoiceId}")
     public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("invoiceProduct") InvoiceProductDto invoiceProductDto){
         invoiceProductService.addInvoiceProduct(invoiceProductDto, invoiceId);

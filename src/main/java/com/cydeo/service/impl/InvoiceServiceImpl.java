@@ -7,10 +7,12 @@ import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceRepository;
+import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -22,6 +24,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private static final String INVOICE_NUMBER_SEPARATOR = "-";
     private final InvoiceRepository invoiceRepository;
+    private final InvoiceProductService invoiceProductService;
     private final MapperUtil mapperUtil;
     
 
