@@ -6,7 +6,9 @@ import com.cydeo.entity.Company;
 import com.cydeo.entity.Product;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ProductRepository;
+import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.ProductService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     
     private final ProductRepository productRepository;
+    private final InvoiceProductService invoiceProductService;
+    private final UserService userService;
     private final MapperUtil mapperUtil;
 
 
@@ -30,10 +34,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> listAllProducts() {
-        return productRepository.findAll().stream()
+        return invoiceProductService.listProductsByCompanyId(userService.getLoggedInUser().getCompany().getId()).stream()
                 .sorted(Comparator.comparing((Product product) -> product.getCategory().getDescription()).thenComparing(Product::getName))
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+                
     }
 
     @Override

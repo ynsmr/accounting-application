@@ -9,6 +9,7 @@ import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,13 @@ public class InvoiceServiceImpl implements InvoiceService {
     private static final String INVOICE_NUMBER_SEPARATOR = "-";
     private final InvoiceRepository invoiceRepository;
     private final InvoiceProductService invoiceProductService;
+    private final UserService userService;
     private final MapperUtil mapperUtil;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, MapperUtil mapperUtil) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, UserService userService, MapperUtil mapperUtil) {
         this.invoiceRepository = invoiceRepository;
         this.invoiceProductService = invoiceProductService;
+        this.userService = userService;
         this.mapperUtil = mapperUtil;
     }
 
@@ -104,10 +107,37 @@ public class InvoiceServiceImpl implements InvoiceService {
     public BigDecimal calculateInvoicePrice(Long invoiceId) {
         List<InvoiceProductDto> invoiceProducts = invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId);
         // Calculate total without tax
-        BigDecimal totalWithoutTax = invoiceProducts.stream()
+        return invoiceProducts.stream()
                 .map(product -> product.getPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add).round(MathContext.DECIMAL32);
-        return totalWithoutTax;
+    }
+
+    @Override
+    public List<InvoiceDto> retrieveCurrentPurchaseInvoices() {
+        return invoiceRepository.findAll().stream()
+                .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getId()))
+                .filter(invoice -> invoice.getClientVendor().getClientVendorType().equals(ClientVendorType.VENDOR))
+                .map(this::convertToDto)
+                .peek(invoiceDto -> {
+                    invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
+                    invoiceDto.setTax(calculateGrandTax(invoiceDto.getId()));
+                    invoiceDto.setPrice(calculateInvoicePrice(invoiceDto.getId()));
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<InvoiceDto> retrieveCurrentSalesInvoices() {
+        return invoiceRepository.findAll().stream()
+                .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getId()))
+                .filter(invoice -> invoice.getClientVendor().getClientVendorType().equals(ClientVendorType.CLIENT))
+                .map(this::convertToDto)
+                .peek(invoiceDto -> {
+            invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
+            invoiceDto.setTax(calculateGrandTax(invoiceDto.getId()));
+            invoiceDto.setPrice(calculateInvoicePrice(invoiceDto.getId()));
+        })
+                .collect(Collectors.toList());
     }
 
 

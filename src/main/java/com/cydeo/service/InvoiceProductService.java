@@ -2,6 +2,8 @@ package com.cydeo.service;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
+import com.cydeo.entity.Product;
 
 import java.util.List;
 
@@ -15,4 +17,5 @@ public interface InvoiceProductService {
     void addInvoiceProduct(InvoiceProductDto invoiceProductDto, Long id);
     List<InvoiceProductDto> findInvoiceProductsByInvoiceId(Long invoiceId);
     void removeInvoiceProduct(Long invoiceId, Long invoiceProductId);
+    List<Product> listProductsByCompanyId(Long companyId);
 }

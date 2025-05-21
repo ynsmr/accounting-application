@@ -29,7 +29,7 @@ public class PurchaseInvoiceController {
 
     @GetMapping("/list")
     public String listPurchaseInvoicePage(Model model){
-        model.addAttribute("invoices", invoiceService.listAllInvoices());
+        model.addAttribute("invoices", invoiceService.retrieveCurrentPurchaseInvoices());
         return "invoice/purchase-invoice-list";
     }
     

@@ -20,4 +20,6 @@ public interface InvoiceService {
     BigDecimal calculateGrandTotal(Long invoiceId);
     BigDecimal calculateGrandTax(Long invoiceId);
     BigDecimal calculateInvoicePrice(Long invoiceId);
+    List<InvoiceDto> retrieveCurrentPurchaseInvoices();
+    List<InvoiceDto> retrieveCurrentSalesInvoices();
 }

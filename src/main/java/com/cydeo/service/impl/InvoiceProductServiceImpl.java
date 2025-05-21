@@ -2,7 +2,9 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.InvoiceProduct;
+import com.cydeo.entity.Product;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
@@ -82,6 +84,14 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         softDeleteInvoiceProduct(invoiceProductById);
         invoiceService.updateInvoice(invoiceService.findById(invoiceId));
 
+    }
+
+    @Override
+    public List<Product> listProductsByCompanyId(Long companyId) {
+        return invoiceProductRepository.findByInvoice_Company_Id(companyId).stream()
+                .map(InvoiceProduct::getProduct)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private InvoiceProductDto convertToDto(InvoiceProduct invoiceProduct) {

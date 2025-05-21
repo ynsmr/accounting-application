@@ -30,7 +30,7 @@ public class SalesInvoiceController {
 
     @GetMapping("/list")
     public String listSalesInvoicePage(Model model){
-        model.addAttribute("invoices", invoiceService.listAllInvoices());
+        model.addAttribute("invoices", invoiceService.retrieveCurrentSalesInvoices());
         return "/invoice/sales-invoice-list";
     }
     

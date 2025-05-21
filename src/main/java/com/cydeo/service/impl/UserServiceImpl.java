@@ -54,12 +54,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
             user -> isActiveUser(user) && isSameCompanyAsLoggedInUser(user, loggedInUser)
         );
     }
-
-    /**
-     * Filters, sorts and maps users based on the provided filtering predicate
-     * @param filterPredicate Predicate to filter users
-     * @return List of filtered and mapped UserDto objects
-     */
+    
     private List<UserDto> filterAndMapUsers(Predicate<User> filterPredicate) {
         return userRepository.findAll().stream()
                 .filter(filterPredicate)
