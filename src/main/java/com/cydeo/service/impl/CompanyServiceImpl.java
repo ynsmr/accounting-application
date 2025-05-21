@@ -114,7 +114,7 @@ public class CompanyServiceImpl implements CompanyService {
         return allCompanies.stream()
                 .filter(company -> !company.getId().equals(1L))
                 .filter(company -> !filterByCurrentUserCompany || 
-                        company.getId().equals(userService.getLoggedInUser().getId()))
+                        company.getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .sorted(Comparator.comparing(Company::getCompanyStatus)
                         .thenComparing(Company::getTitle))
                 .map(this::convertToCompanyDTO)

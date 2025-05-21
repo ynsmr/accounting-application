@@ -25,7 +25,7 @@ public class AuthSuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect("/users/list");
         }
         else if (roles.contains("Manager") || roles.contains("Employee")) {
-            response.sendRedirect("/dashboard");
+            response.sendRedirect("/purchaseInvoices/list");
         }
         else {
             // Default redirect for users with no recognized roles

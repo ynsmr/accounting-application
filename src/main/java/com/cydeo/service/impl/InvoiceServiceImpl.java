@@ -115,7 +115,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<InvoiceDto> retrieveCurrentPurchaseInvoices() {
         return invoiceRepository.findAll().stream()
-                .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getId()))
+                .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoice -> invoice.getClientVendor().getClientVendorType().equals(ClientVendorType.VENDOR))
                 .map(this::convertToDto)
                 .peek(invoiceDto -> {
@@ -129,7 +129,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<InvoiceDto> retrieveCurrentSalesInvoices() {
         return invoiceRepository.findAll().stream()
-                .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getId()))
+                .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoice -> invoice.getClientVendor().getClientVendorType().equals(ClientVendorType.CLIENT))
                 .map(this::convertToDto)
                 .peek(invoiceDto -> {

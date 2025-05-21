@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDto> findAll() {
         return categoryRepository.findAll().stream()
                 .filter(category -> category.getCompany() != null && 
-                               category.getCompany().getId().equals(userService.getLoggedInUser().getId()))
+                               category.getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .map(this::convertToDto)
                 .peek(categoryDto -> categoryDto.setHasProduct(productService.categoryHasProduct(categoryDto.getId())))
                 .collect(Collectors.toList());
