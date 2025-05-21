@@ -35,6 +35,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public List<InvoiceProductDto> listAllInvoiceProducts() {
         return invoiceProductRepository.findAll().stream()
+                .filter(invoiceProduct -> invoiceProduct.getQuantity() >= 1)
                 .map(this::convertToDto)
                 .peek(invoiceProductDto -> invoiceProductDto.setTotal(calculateTotal(invoiceProductDto)))
                 .collect(Collectors.toList());
@@ -81,8 +82,12 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public void removeInvoiceProduct(Long invoiceId, Long invoiceProductId) {
         InvoiceProduct invoiceProductById = findInvoiceProductById(invoiceProductId);
+        if (!invoiceProductById.getInvoice().getId().equals(invoiceId)){
+            throw new RuntimeException("Given invoice product is not associated with given invoice.");
+        }
+        
         softDeleteInvoiceProduct(invoiceProductById);
-        invoiceService.updateInvoice(invoiceService.findById(invoiceId));
+
 
     }
 

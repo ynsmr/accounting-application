@@ -10,7 +10,10 @@ import com.cydeo.service.ProductService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/salesInvoices")
@@ -63,8 +66,24 @@ public class SalesInvoiceController {
         return "redirect:/salesInvoices/update/{invoiceId}";
     }
 
+    @GetMapping("/print/{invoiceId}")
+    public String printPurchaseInvoicePage(@PathVariable("invoiceId") Long invoiceId, Model model){
+        model.addAttribute("invoice", invoiceService.findById(invoiceId));
+        model.addAttribute("company", invoiceService.findById(invoiceId).getCompany());
+        model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
+
+        return "invoice/invoice-print";
+    }
+
     @PostMapping("/addInvoiceProduct/{invoiceId}")
-    public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("invoiceProduct") InvoiceProductDto invoiceProductDto){
+    public String addInvoiceProduct(@Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto, BindingResult bindingResult, @PathVariable("invoiceId") Long invoiceId, Model model){
+        if (bindingResult.hasErrors()){
+            model.addAttribute("invoice", invoiceService.findById(invoiceId));
+            model.addAttribute("clients", clientVendorService.listAllByType(ClientVendorType.CLIENT));
+            model.addAttribute("products", productService.listAllProducts());
+            model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
+            return "invoice/sales-invoice-update";
+        }
         invoiceProductService.addInvoiceProduct(invoiceProductDto, invoiceId);
         return "redirect:/salesInvoices/update/{invoiceId}";
     }

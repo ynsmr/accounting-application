@@ -52,9 +52,9 @@
                                                                     <td th:text="${invoice.invoiceNo}"></td>
                                                                     <td th:text="${invoice.clientVendor.getClientVendorName}"></td>
                                                                     <td th:text="${invoice.date}"></td>
-                                                                    <td th:text="${invoice.price}"></td>
-                                                                    <td th:text="${invoice.tax}"></td>
-                                                                    <td th:text="${invoice.total}"></td>
+                                                                    <td th:text="${invoice.price != null ? '$' + #numbers.formatDecimal(invoice.price, 1, 'COMMA', 2, 'POINT') : '$0.00'}"></td>
+                                                                    <td th:text="${invoice.tax != null ? '$' + #numbers.formatDecimal(invoice.tax, 1, 'COMMA', 2, 'POINT') : '$0.00'}"></td>
+                                                                    <td th:text="${invoice.total != null ? '$' + #numbers.formatDecimal(invoice.total, 1, 'COMMA', 2, 'POINT') : '$0.00'}"></td>
                                                                     <td class="actions">
                                                                         <a th:if="${invoice.invoiceStatus.value == 'Awaiting Approval'}"
                                                                            th:href ="@{/salesInvoices/update/{id}(id=${invoice.getId()})}" type="button">

@@ -35,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDto> listAllProducts() {
         return invoiceProductService.listProductsByCompanyId(userService.getLoggedInUser().getCompany().getId()).stream()
+                .filter(product -> product.getQuantityInStock() >= 1)
                 .sorted(Comparator.comparing((Product product) -> product.getCategory().getDescription()).thenComparing(Product::getName))
                 .map(this::convertToDto)
                 .collect(Collectors.toList());

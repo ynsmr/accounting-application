@@ -198,9 +198,9 @@
                                                                 <td th:text="${comStat.count}"></td>
                                                                 <td th:text="${invoiceProduct.product.name}"></td>
                                                                 <td th:text="${invoiceProduct.quantity}"></td>
-                                                                <td th:text="${invoiceProduct.price}"></td>
-                                                                <td th:text="${invoiceProduct.tax}"></td>
-                                                                <td th:text="${invoiceProduct.total}"></td>
+                                                                <td class="unit" th:text="${invoiceProduct.getPrice() != null ? '$' + #numbers.formatDecimal(invoiceProduct.getPrice(), 1, 'COMMA', 2, 'POINT') : '$0.00'}"></td>
+                                                                <td class="unit" th:text="${invoiceProduct.getTax() != null ? invoiceProduct.getTax() + '%' : '0%'}"></td>
+                                                                <td class="total" th:text="${invoiceProduct.getTotal() != null ? '$' + #numbers.formatDecimal(invoiceProduct.getTotal(), 1, 'COMMA', 2, 'POINT') : '$0.00'}"></td>
                                                                 <td>
                                                                     <a th:href="@{/salesInvoices/removeInvoiceProduct/{invoiceId}/{invoiceProuductId}(invoiceId=${invoice.getId()}, invoiceProuductId=${invoiceProduct.getId()})}">
                                                                         <button class="ft-minus btn-danger bg-light-primary" type="submit"></button>

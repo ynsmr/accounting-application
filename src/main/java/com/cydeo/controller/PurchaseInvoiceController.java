@@ -9,7 +9,10 @@ import com.cydeo.service.InvoiceService;
 import com.cydeo.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/purchaseInvoices")
@@ -73,7 +76,14 @@ public class PurchaseInvoiceController {
     }
     
     @PostMapping("/addInvoiceProduct/{invoiceId}")
-    public String addInvoiceProduct(@PathVariable("invoiceId") Long invoiceId, @ModelAttribute("invoiceProduct") InvoiceProductDto invoiceProductDto){
+    public String addInvoiceProduct(@Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDto invoiceProductDto, BindingResult bindingResult, @PathVariable("invoiceId") Long invoiceId, Model model){
+        if (bindingResult.hasErrors()){
+            model.addAttribute("invoice", invoiceService.findById(invoiceId));
+            model.addAttribute("vendors", clientVendorService.listAllByType(ClientVendorType.VENDOR));
+            model.addAttribute("products", productService.listAllProducts());
+            model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
+            return "invoice/purchase-invoice-update";
+        }
         invoiceProductService.addInvoiceProduct(invoiceProductDto, invoiceId);
         return "redirect:/purchaseInvoices/update/{invoiceId}";
     }
