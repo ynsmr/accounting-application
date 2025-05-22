@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.dto.ProductDto;
@@ -149,6 +150,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .peek(invoiceProductDto -> {
                     ProductDto product = invoiceProductDto.getProduct();
                     product.setQuantityInStock(product.getQuantityInStock()+invoiceProductDto.getQuantity());
+                    product.getCategory().setCompany(mapperUtil.convert(userService.getLoggedInUser().getCompany(), new CompanyDto()));
                     invoiceProductDto.setProduct(product);
                     invoiceProductDto.setInvoice(findById(invoiceId));
                     invoiceProductService.saveInvoiceProduct(invoiceProductDto);
