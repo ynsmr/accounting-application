@@ -14,7 +14,7 @@ public interface InvoiceService {
     List<InvoiceDto> listAllInvoices();
     InvoiceDto findById(Long invoiceId);
     void deleteInvoiceById(Long invoiceId);
-    void saveInvoice(InvoiceDto invoiceDto);
+    void saveInvoice(InvoiceDto invoiceDto, InvoiceType invoiceType);
     void updateInvoice(InvoiceDto invoiceDto);
     InvoiceDto getInvoiceTemplate(InvoiceType invoiceType);
     boolean clientVendorHasInvoice(Long clientVendorId);
@@ -24,4 +24,5 @@ public interface InvoiceService {
     List<InvoiceDto> retrieveCurrentPurchaseInvoices();
     List<InvoiceDto> retrieveCurrentSalesInvoices();
     void approvePurchaseInvoice(Long invoiceId);
+    void approveSalesInvoice(Long invoiceId);
 }

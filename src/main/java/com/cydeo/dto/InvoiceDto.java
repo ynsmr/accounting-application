@@ -6,6 +6,7 @@ import com.cydeo.enums.InvoiceType;
 import lombok.*;
 
 import javax.persistence.GeneratedValue;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -20,6 +21,7 @@ public class InvoiceDto {
     private InvoiceType invoiceType;
     private LocalDate date;
     private CompanyDto company;
+    @NotNull(message = "Client vendor is a required field.")
     private ClientVendorDto clientVendor;
     private BigDecimal price;
     private BigDecimal tax;

@@ -17,6 +17,7 @@ import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -32,12 +33,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceProductService invoiceProductService;
     private final UserService userService;
+    private final ProductService productService;
     private final MapperUtil mapperUtil;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, UserService userService, MapperUtil mapperUtil) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, UserService userService, @Lazy ProductService productService, MapperUtil mapperUtil) {
         this.invoiceRepository = invoiceRepository;
         this.invoiceProductService = invoiceProductService;
         this.userService = userService;
+        this.productService = productService;
         this.mapperUtil = mapperUtil;
     }
 
@@ -68,15 +71,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void saveInvoice(InvoiceDto invoiceDto) {
+    public void saveInvoice(InvoiceDto invoiceDto, InvoiceType invoiceType) {
+        invoiceDto.setInvoiceType(invoiceType);
+        invoiceDto.setCompany(mapperUtil.convert(userService.getLoggedInUser().getCompany(), new CompanyDto()));
         invoiceDto.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
         invoiceRepository.save(convertToEntity(invoiceDto));
     }
 
     @Override
     public void updateInvoice(InvoiceDto invoiceDto) {
-        invoiceDto.setInvoiceStatus(findInvoiceById(invoiceDto.getId()).getInvoiceStatus());
-        invoiceRepository.save(convertToEntity(invoiceDto));
+        Invoice invoiceById = findInvoiceById(invoiceDto.getId());
+        invoiceById.setClientVendor(invoiceById.getClientVendor());
+        invoiceRepository.save(invoiceById);
 
     }
 
@@ -146,19 +152,38 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void approvePurchaseInvoice(Long invoiceId) {
-        invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId).stream()
-                .peek(invoiceProductDto -> {
+        invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId)
+        .forEach(invoiceProductDto -> { 
+            ProductDto product = invoiceProductDto.getProduct();
+            product.setQuantityInStock(product.getQuantityInStock() + invoiceProductDto.getQuantity());
+            productService.updateProduct(product);
+            invoiceProductDto.setProduct(product);
+            invoiceProductDto.setInvoice(findById(invoiceId));
+            invoiceProductService.saveInvoiceProduct(invoiceProductDto);
+        });
+    
+    Invoice invoiceById = findInvoiceById(invoiceId);
+    invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
+    invoiceRepository.save(invoiceById);
+}
+
+    @Override
+    public void approveSalesInvoice(Long invoiceId) {
+        invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId)
+                .forEach(invoiceProductDto -> {
                     ProductDto product = invoiceProductDto.getProduct();
-                    product.setQuantityInStock(product.getQuantityInStock()+invoiceProductDto.getQuantity());
-                    product.getCategory().setCompany(mapperUtil.convert(userService.getLoggedInUser().getCompany(), new CompanyDto()));
+                    product.setQuantityInStock(product.getQuantityInStock() - invoiceProductDto.getQuantity());
+                    productService.updateProduct(product);
                     invoiceProductDto.setProduct(product);
                     invoiceProductDto.setInvoice(findById(invoiceId));
                     invoiceProductService.saveInvoiceProduct(invoiceProductDto);
-                }).close();
+                });
         Invoice invoiceById = findInvoiceById(invoiceId);
         invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoiceRepository.save(invoiceById);
     }
+
+
 
 
     @Override
