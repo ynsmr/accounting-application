@@ -5,6 +5,7 @@ import com.cydeo.entity.Category;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.Product;
 import com.cydeo.mapper.MapperUtil;
+import com.cydeo.respository.CompanyRepository;
 import com.cydeo.respository.ProductRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.ProductService;
@@ -25,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
     private final InvoiceProductService invoiceProductService;
     private final UserService userService;
     private final MapperUtil mapperUtil;
+    private final CompanyRepository companyRepository;
 
 
     @Override
@@ -34,12 +36,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> listAllProducts() {
-        return invoiceProductService.listProductsByCompanyId(userService.getLoggedInUser().getCompany().getId()).stream()
+        return listAllProductsByCompanyId(userService.getLoggedInUser().getCompany().getId()).stream()
                 .filter(product -> product.getQuantityInStock() >= 1)
-                .sorted(Comparator.comparing((Product product) -> product.getCategory().getDescription()).thenComparing(Product::getName))
-                .map(this::convertToDto)
+                .sorted(Comparator.comparing((ProductDto product) -> product.getCategory().getDescription()).thenComparing(ProductDto::getName))
                 .collect(Collectors.toList());
-                
+
     }
 
     @Override
@@ -60,6 +61,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public boolean categoryHasProduct(Long categoryId) {
         return productRepository.existsByCategory_Id(categoryId);
+    }
+
+    @Override
+    public List<ProductDto> listAllProductsByCompanyId(Long companyId) {
+        return productRepository.findProductsByCategory_Company_Id(companyId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private ProductDto convertToDto(Product product){

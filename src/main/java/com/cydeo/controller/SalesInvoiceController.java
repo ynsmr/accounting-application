@@ -3,6 +3,7 @@ package com.cydeo.controller;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.enums.ClientVendorType;
+import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
@@ -39,7 +40,7 @@ public class SalesInvoiceController {
     
     @GetMapping("/create")
     public String createSalesInvoicePage(Model model){
-        model.addAttribute("newSalesInvoice",invoiceService.getInvoiceTemplate(ClientVendorType.CLIENT));
+        model.addAttribute("newSalesInvoice",invoiceService.getInvoiceTemplate(InvoiceType.SALES));
         model.addAttribute("clients", clientVendorService.listAllByType(ClientVendorType.CLIENT));
         return "/invoice/sales-invoice-create";
     }

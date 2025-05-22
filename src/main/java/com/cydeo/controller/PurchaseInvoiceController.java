@@ -3,6 +3,7 @@ package com.cydeo.controller;
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.enums.ClientVendorType;
+import com.cydeo.enums.InvoiceType;
 import com.cydeo.service.ClientVendorService;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
@@ -38,7 +39,7 @@ public class PurchaseInvoiceController {
     
     @GetMapping("/create")
     public String createPurchaseInvoicePage(Model model){
-        model.addAttribute("newPurchaseInvoice",invoiceService.getInvoiceTemplate(ClientVendorType.VENDOR));
+        model.addAttribute("newPurchaseInvoice",invoiceService.getInvoiceTemplate(InvoiceType.PURCHASE));
         model.addAttribute("vendors", clientVendorService.listAllByType(ClientVendorType.VENDOR));
         
         return "invoice/purchase-invoice-create";
@@ -73,6 +74,12 @@ public class PurchaseInvoiceController {
         model.addAttribute("invoiceProducts", invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId));
         
         return "invoice/invoice-print";
+    }
+    
+    @GetMapping("/approve/{invoiceId}")
+    public String approvePurchaseInvoice(@PathVariable("invoiceId") Long invoiceId){
+        invoiceService.approvePurchaseInvoice(invoiceId);
+        return "redirect:/purchaseInvoices/list";
     }
     
     @PostMapping("/addInvoiceProduct/{invoiceId}")

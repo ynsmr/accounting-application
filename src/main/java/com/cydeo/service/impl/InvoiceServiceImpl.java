@@ -2,13 +2,16 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Invoice;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.InvoiceStatus;
+import com.cydeo.enums.InvoiceType;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.service.ProductService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
@@ -78,9 +81,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
     @Override
-    public InvoiceDto getInvoiceTemplate(ClientVendorType clientVendorType) {
+    public InvoiceDto getInvoiceTemplate(InvoiceType invoiceType) {
         InvoiceDto template = new InvoiceDto();
-        template.setInvoiceNo(generateInvoiceNumber(clientVendorType));
+        template.setInvoiceNo(generateInvoiceNumber(invoiceType));
         template.setDate(LocalDate.now());
         return template;
     }
@@ -116,7 +119,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public List<InvoiceDto> retrieveCurrentPurchaseInvoices() {
         return invoiceRepository.findAll().stream()
                 .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
-                .filter(invoice -> invoice.getClientVendor().getClientVendorType().equals(ClientVendorType.VENDOR))
+                .filter(invoice -> invoice.getInvoiceType().equals(InvoiceType.PURCHASE))
                 .map(this::convertToDto)
                 .peek(invoiceDto -> {
                     invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
@@ -130,7 +133,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     public List<InvoiceDto> retrieveCurrentSalesInvoices() {
         return invoiceRepository.findAll().stream()
                 .filter(invoice -> invoice.getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
-                .filter(invoice -> invoice.getClientVendor().getClientVendorType().equals(ClientVendorType.CLIENT))
+                .filter(invoice -> invoice.getInvoiceType().equals(InvoiceType.SALES))
                 .map(this::convertToDto)
                 .peek(invoiceDto -> {
             invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
@@ -138,6 +141,21 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceDto.setPrice(calculateInvoicePrice(invoiceDto.getId()));
         })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void approvePurchaseInvoice(Long invoiceId) {
+        invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId).stream()
+                .peek(invoiceProductDto -> {
+                    ProductDto product = invoiceProductDto.getProduct();
+                    product.setQuantityInStock(product.getQuantityInStock()+invoiceProductDto.getQuantity());
+                    invoiceProductDto.setProduct(product);
+                    invoiceProductDto.setInvoice(findById(invoiceId));
+                    invoiceProductService.saveInvoiceProduct(invoiceProductDto);
+                }).close();
+        Invoice invoiceById = findInvoiceById(invoiceId);
+        invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
+        invoiceRepository.save(invoiceById);
     }
 
 
@@ -164,8 +182,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoice);
     }
 
-    private String generateInvoiceNumber(ClientVendorType clientVendorType) {
-        String prefix = clientVendorType == ClientVendorType.CLIENT ? "S" : "P";
+    private String generateInvoiceNumber(InvoiceType invoiceType) {
+        String prefix = invoiceType == InvoiceType.SALES ? "S" : "P";
         String formattedSequence = getNextInvoiceSequence(prefix);
         return prefix + INVOICE_NUMBER_SEPARATOR + formattedSequence;
     }

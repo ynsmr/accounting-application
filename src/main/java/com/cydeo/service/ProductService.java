@@ -15,4 +15,5 @@ public interface ProductService {
     void saveProduct(ProductDto productDto);
     void updateProduct(ProductDto productDto);
     boolean categoryHasProduct(Long categoryId);
+    List<ProductDto> listAllProductsByCompanyId(Long companyId);
 }

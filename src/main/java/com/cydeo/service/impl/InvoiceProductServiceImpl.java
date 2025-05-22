@@ -85,19 +85,9 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         if (!invoiceProductById.getInvoice().getId().equals(invoiceId)){
             throw new RuntimeException("Given invoice product is not associated with given invoice.");
         }
-        
         softDeleteInvoiceProduct(invoiceProductById);
-
-
     }
-
-    @Override
-    public List<Product> listProductsByCompanyId(Long companyId) {
-        return invoiceProductRepository.findByInvoice_Company_Id(companyId).stream()
-                .map(InvoiceProduct::getProduct)
-                .distinct()
-                .collect(Collectors.toList());
-    }
+    
 
     private InvoiceProductDto convertToDto(InvoiceProduct invoiceProduct) {
         return mapperUtil.convert(invoiceProduct, new InvoiceProductDto());
