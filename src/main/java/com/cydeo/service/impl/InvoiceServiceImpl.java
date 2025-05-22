@@ -163,6 +163,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         });
     
     Invoice invoiceById = findInvoiceById(invoiceId);
+    invoiceById.setDate(LocalDate.now());
     invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
     invoiceRepository.save(invoiceById);
 }
@@ -179,6 +180,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     invoiceProductService.saveInvoiceProduct(invoiceProductDto);
                 });
         Invoice invoiceById = findInvoiceById(invoiceId);
+        invoiceById.setDate(LocalDate.now());
         invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoiceRepository.save(invoiceById);
     }
