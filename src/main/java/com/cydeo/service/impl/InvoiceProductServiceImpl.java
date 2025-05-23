@@ -1,10 +1,12 @@
 package com.cydeo.service.impl;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.entity.InvoiceProduct;
+import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
+import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +25,15 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final InvoiceProductRepository invoiceProductRepository;
     private final InvoiceService invoiceService;
     private final MapperUtil mapperUtil;
+    private final UserService userService;
 
 
     @Override
     public List<InvoiceProductDto> listAllInvoiceProducts() {
         return invoiceProductRepository.findAll().stream()
                 .filter(invoiceProduct -> invoiceProduct.getQuantity() >= 1)
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.APPROVED))
                 .map(this::convertToDto)
                 .peek(invoiceProductDto -> invoiceProductDto.setTotal(calculateTotal(invoiceProductDto)))
                 .collect(Collectors.toList());
