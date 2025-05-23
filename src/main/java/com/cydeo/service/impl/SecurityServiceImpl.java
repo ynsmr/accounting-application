@@ -4,7 +4,6 @@ import com.cydeo.entity.User;
 import com.cydeo.entity.common.UserPrincipal;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.SecurityService;
-import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

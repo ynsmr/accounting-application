@@ -1,4 +1,4 @@
-package com.cydeo.Converter;
+package com.cydeo.converter;
 
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.service.InvoiceProductService;

@@ -1,10 +1,6 @@
 package com.cydeo.service.impl;
-
-import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
-import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.InvoiceProduct;
-import com.cydeo.entity.Product;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
@@ -12,13 +8,10 @@ import com.cydeo.service.InvoiceService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.lang.ref.PhantomReference;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import static org.yaml.snakeyaml.nodes.NodeId.sequence;

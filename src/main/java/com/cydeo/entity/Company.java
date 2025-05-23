@@ -2,12 +2,10 @@ package com.cydeo.entity;
 
 import com.cydeo.entity.common.BaseEntity;
 import com.cydeo.enums.CompanyStatus;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-
 @Entity
 @NoArgsConstructor
 @Getter

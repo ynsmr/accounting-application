@@ -315,13 +315,13 @@
                     <div class="card-body">
                         <div class="media">
                             <div class="media-body text-left">
-                                <h3 class="mb-1" th:classappend="${summaryNumbers.profitLoss >= 0 ? 'success' : 'danger'}" 
-                                    th:text="${summaryNumbers.profitLoss != null ? '$' + #numbers.formatDecimal(summaryNumbers.profitLoss, 1, 'COMMA', 2, 'POINT') : '$0.00'}"></h3>
+                                <h3 class="mb-1" th:classappend="${summaryNumbers.get('profitLoss') >= 0 ? 'success' : 'danger'}" 
+                                    th:text="${summaryNumbers.get('profitLoss') != null ? '$' + #numbers.formatDecimal(summaryNumbers.get('profitLoss'), 1, 'COMMA', 2, 'POINT') : '$0.00'}"></h3>
                                 <span>Profit/Loss</span>
                             </div>
                             <div class="media-right align-self-center">
                                 <i class="fa fa-balance-scale font-large-2 float-right" 
-                                   th:classappend="${summaryNumbers.profitLoss >= 0 ? 'success' : 'danger'}"></i>
+                                   th:classappend="${summaryNumbers.get('profitLoss') >= 0 ? 'success' : 'danger'}"></i>
                             </div>
                         </div>
                     </div>

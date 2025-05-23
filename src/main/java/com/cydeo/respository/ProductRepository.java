@@ -1,6 +1,6 @@
 package com.cydeo.respository;
 
-import com.cydeo.dto.ProductDto;
+
 import com.cydeo.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 

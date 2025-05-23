@@ -1,5 +1,6 @@
 package com.cydeo.respository;
 
+
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.enums.ClientVendorType;
 import org.springframework.data.jpa.repository.JpaRepository;

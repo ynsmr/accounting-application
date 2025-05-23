@@ -4,7 +4,6 @@ import com.cydeo.dto.UserDto;
 import com.cydeo.entity.User;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
-import com.cydeo.service.CompanyService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

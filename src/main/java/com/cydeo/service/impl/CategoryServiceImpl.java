@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+
 import com.cydeo.dto.CategoryDto;
 import com.cydeo.entity.Category;
 import com.cydeo.mapper.MapperUtil;
@@ -11,10 +12,8 @@ import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.lang.ref.PhantomReference;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

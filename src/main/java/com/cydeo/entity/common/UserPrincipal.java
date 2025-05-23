@@ -1,5 +1,4 @@
 package com.cydeo.entity.common;
-
 import com.cydeo.entity.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +11,6 @@ import java.util.List;
 
 public class UserPrincipal implements UserDetails {
     private User user;
-
     public UserPrincipal(User user) {
         this.user = user;
     }

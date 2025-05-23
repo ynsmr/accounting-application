@@ -1,7 +1,7 @@
 package com.cydeo.service;
 
+
 import com.cydeo.dto.ClientVendorDto;
-import com.cydeo.entity.ClientVendor;
 import com.cydeo.enums.ClientVendorType;
 
 import java.util.List;

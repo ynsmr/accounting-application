@@ -1,5 +1,4 @@
-package com.cydeo.Converter;
-
+package com.cydeo.converter;
 import com.cydeo.dto.CategoryDto;
 import com.cydeo.service.CategoryService;
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;

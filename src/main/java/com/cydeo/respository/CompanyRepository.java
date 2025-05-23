@@ -1,7 +1,7 @@
 package com.cydeo.respository;
 
+
 import com.cydeo.entity.Company;
-import com.cydeo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

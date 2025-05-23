@@ -1,6 +1,5 @@
 package com.cydeo.dto;
 
-import com.cydeo.entity.ClientVendor;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import lombok.*;

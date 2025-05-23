@@ -1,17 +1,13 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.UserDto;
 import com.cydeo.entity.Company;
-import com.cydeo.entity.User;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CompanyRepository;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;

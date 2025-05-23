@@ -1,12 +1,8 @@
 package com.cydeo.controller;
-
 import com.cydeo.dto.UserDto;
 import com.cydeo.service.CompanyService;
 import com.cydeo.service.RoleService;
 import com.cydeo.service.UserService;
-import lombok.AllArgsConstructor;
-import org.springframework.boot.Banner;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
