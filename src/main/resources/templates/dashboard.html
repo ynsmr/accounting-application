@@ -125,6 +125,14 @@
                 transform: rotate(135deg);
             }
         }
+    /* Try these enhanced CSS rules with !important to ensure they take effect */
+    .progress.red .progress-bar {
+        border-color: #dc3545 !important; /* Bootstrap's danger red */
+    }
+
+    .progress.green .progress-bar {
+        border-color: #28a745 !important; /* Bootstrap's success green */
+    }
     </style>
 </head>
 
@@ -137,42 +145,46 @@
                 <div class="container-fluid dashboard-content mt-1 pt-1">
                     <div class="ecommerce-widget">
                         <div class="row d-flex mt-1">
-                            <div class="col-md-4">
-                                <div class="card" style="width:100%;">
-                                    <h4 class="card-title text-center">Total Cost</h4>
-                                    <div class="card-body mt-0 pt-0 d-flex justify-content-center">
-                                        <div class="progress blue">
-                                            <span class="progress-left">
-                                                <span class="progress-bar"></span>
-                                            </span>
-                                            <span class="progress-right">
-                                                <span class="progress-bar"></span>
-                                            </span>
-                                            <div class="progress-value" th:text="${summaryNumbers.get('totalCost') != null ? '$' + #numbers.formatDecimal(summaryNumbers.get('totalCost'), 1, 'COMMA', 2, 'POINT') : '$0.00'}">90%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card" style="width:100%;">
-                                    <h4 class="card-title text-center">Total Sales</h4>
-                                    <div class="card-body mt-0 pt-0 d-flex justify-content-center">
-                                        <div class="progress blue">
-                                            <span class="progress-left">
-                                                <span class="progress-bar"></span>
-                                            </span>
-                                            <span class="progress-right">
-                                                <span class="progress-bar"></span>
-                                            </span>
-                                            <div class="progress-value" th:text="${summaryNumbers.get('totalSales') != null ? '$' + #numbers.formatDecimal(summaryNumbers.get('totalSales'), 1, 'COMMA', 2, 'POINT') : '$0.00'}">90%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- For Total Cost (red) -->
+<div class="col-md-4">
+    <div class="card" style="width:100%;">
+        <h4 class="card-title text-center">Total Cost</h4>
+        <div class="card-body mt-0 pt-0 d-flex justify-content-center">
+            <div class="progress red">
+                <span class="progress-left">
+                    <span class="progress-bar"></span>
+                </span>
+                <span class="progress-right">
+                    <span class="progress-bar"></span>
+                </span>
+                <div class="progress-value" th:text="${summaryNumbers.get('totalCost') != null ? '$' + #numbers.formatDecimal(summaryNumbers.get('totalCost'), 1, 'COMMA', 2, 'POINT') : '$0.00'}">90%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- For Total Sales (green) -->
+<div class="col-md-4">
+    <div class="card" style="width:100%;">
+        <h4 class="card-title text-center">Total Sales</h4>
+        <div class="card-body mt-0 pt-0 d-flex justify-content-center">
+            <div class="progress green">
+                <span class="progress-left">
+                    <span class="progress-bar"></span>
+                </span>
+                <span class="progress-right">
+                    <span class="progress-bar"></span>
+                </span>
+                <div class="progress-value" th:text="${summaryNumbers.get('totalSales') != null ? '$' + #numbers.formatDecimal(summaryNumbers.get('totalSales'), 1, 'COMMA', 2, 'POINT') : '$0.00'}">90%</div>
+            </div>
+        </div>
+    </div>
+</div>
                             <div class="col-md-4">
                                 <div class="card" style="width:100%;">
                                     <h4 class="card-title text-center">Profit / Loss</h4>
                                     <div class="card-body mt-0 pt-0 d-flex justify-content-center">
+                                        <!-- For Profit/Loss (blue - already using this class) -->
                                         <div class="progress blue">
                                             <span class="progress-left">
                                                 <span class="progress-bar"></span>
