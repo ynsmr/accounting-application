@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -185,7 +186,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoiceById);
     }
 
-
+    @Override
+    public List<InvoiceDto> listLast3Approved() {
+        return listAllInvoices().stream()
+                .filter(invoiceDto -> invoiceDto.getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
+                .filter(invoiceDto -> invoiceDto.getInvoiceStatus().equals(InvoiceStatus.APPROVED))
+                .sorted(Comparator.comparing(InvoiceDto::getDate).reversed())
+                .collect(Collectors.toList());
+    }
 
 
     @Override

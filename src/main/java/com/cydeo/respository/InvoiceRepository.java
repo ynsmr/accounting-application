@@ -10,4 +10,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findByInvoiceNoStartingWith(String keyword);
     boolean existsByClientVendor_Id(Long clientVendorId);
     List<Invoice> findInvoicesByCompany_Id(Long company_id);
+    
 }
