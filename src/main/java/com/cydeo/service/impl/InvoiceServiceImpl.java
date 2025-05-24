@@ -253,7 +253,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         
         Queue<InvoiceProduct> purchaseQ = new LinkedList<>(purchaseInvoiceProducts);
         
-        
         List<InvoiceProduct> salesInvoiceProducts = invoiceProductRepository.findAll().stream()
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.SALES))
@@ -262,7 +261,6 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate()))
                 .collect(Collectors.toList());
         Queue<InvoiceProduct> salesQ = new LinkedList<>(salesInvoiceProducts);
-
         
         return salesQ.remove().getPrice().subtract(purchaseQ.remove().getPrice()).multiply(BigDecimal.valueOf(quantitySold));
 
