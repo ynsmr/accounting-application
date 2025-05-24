@@ -243,19 +243,28 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
     
     private BigDecimal calculateProfitLoss(Integer quantitySold, Long productId){
-        Queue<InvoiceProduct> purchaseInvoiceProducts = invoiceProductRepository.findAll().stream()
+        List<InvoiceProduct> purchaseInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.PURCHASE))
                 .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.AWAITING_APPROVAL))
-                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate())).collect(Collectors.toCollection(LinkedList::new));
-
-        Queue<InvoiceProduct> salesInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate()))
+                .collect(Collectors.toList());
+        
+        Queue<InvoiceProduct> purchaseQ = new LinkedList<>(purchaseInvoiceProducts);
+        
+        
+        List<InvoiceProduct> salesInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.SALES))
                 .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.AWAITING_APPROVAL))
-                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate())).collect(Collectors.toCollection(LinkedList::new));
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate()))
+                .collect(Collectors.toList());
+        Queue<InvoiceProduct> salesQ = new LinkedList<>(salesInvoiceProducts);
+
         
-        return Objects.requireNonNull(salesInvoiceProducts.poll()).getPrice().subtract(Objects.requireNonNull(purchaseInvoiceProducts.poll()).getPrice());
+        return salesQ.remove().getPrice().subtract(purchaseQ.remove().getPrice()).multiply(BigDecimal.valueOf(quantitySold));
 
     }
 
