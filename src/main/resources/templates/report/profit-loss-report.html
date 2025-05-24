@@ -33,7 +33,7 @@
                                                             <tr th:each="month, comStat : ${monthlyProfitLossDataMap.keySet()}">
                                                                 <td th:text="${comStat.count}"></td>
                                                                 <td th:text="${month}"></td>
-                                                                <td th:text="${monthlyProfitLossDataMap.get(month)}"></td>
+                                                                <td th:text="${monthlyProfitLossDataMap.get(month) != null ? '$' + #numbers.formatDecimal(monthlyProfitLossDataMap.get(month), 1, 'COMMA', 2, 'POINT') : '$0.00'}"></td>
                                                             </tr>
                                                             </tbody>
                                                         </table>
