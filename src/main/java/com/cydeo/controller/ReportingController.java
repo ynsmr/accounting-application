@@ -20,4 +20,10 @@ public class ReportingController {
         model.addAttribute("invoiceProducts", invoiceProductService.listAllInvoiceProducts());
         return "report/stock-report";
     }
+    
+    @GetMapping("/profitLossData")
+    public String profitLossData(Model model){
+        
+        return "report/profit-loss-report";
+    }
 }

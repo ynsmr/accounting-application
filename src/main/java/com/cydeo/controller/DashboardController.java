@@ -27,4 +27,5 @@ public class DashboardController {
        model.addAttribute("exchangeRates", currencyExchangeClient.getExchangeRates().getUsd());
         return "dashboard";
     }
+    
 }

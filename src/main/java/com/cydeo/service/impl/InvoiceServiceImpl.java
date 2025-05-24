@@ -5,9 +5,11 @@ import com.cydeo.dto.InvoiceDto;
 import com.cydeo.dto.InvoiceProductDto;
 import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Invoice;
+import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.mapper.MapperUtil;
+import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.respository.InvoiceRepository;
 import com.cydeo.service.InvoiceProductService;
 import com.cydeo.service.InvoiceService;
@@ -19,9 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,13 +33,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final UserService userService;
     private final ProductService productService;
     private final MapperUtil mapperUtil;
+    private final InvoiceProductRepository invoiceProductRepository;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, UserService userService, @Lazy ProductService productService, MapperUtil mapperUtil) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, @Lazy InvoiceProductService invoiceProductService, UserService userService, @Lazy ProductService productService, MapperUtil mapperUtil, InvoiceProductRepository invoiceProductRepository) {
         this.invoiceRepository = invoiceRepository;
         this.invoiceProductService = invoiceProductService;
         this.userService = userService;
         this.productService = productService;
         this.mapperUtil = mapperUtil;
+        this.invoiceProductRepository = invoiceProductRepository;
     }
 
     @Override
@@ -174,6 +176,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     product.setQuantityInStock(product.getQuantityInStock() - invoiceProductDto.getQuantity());
                     productService.updateProduct(product);
                     invoiceProductDto.setProduct(product);
+                    invoiceProductDto.setProfitLoss(calculateProfitLoss(invoiceProductDto.getQuantity(), product.getId()));
                     invoiceProductDto.setInvoice(findById(invoiceId));
                     invoiceProductService.saveInvoiceProduct(invoiceProductDto);
                 });
@@ -237,6 +240,23 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         String SEQUENCE_NUMBER_LENGTH = "3";
         return String.format("%0" + SEQUENCE_NUMBER_LENGTH + "d", nextSequence);
+    }
+    
+    private BigDecimal calculateProfitLoss(Integer quantitySold, Long productId){
+        Queue<InvoiceProduct> purchaseInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.PURCHASE))
+                .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.AWAITING_APPROVAL))
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate())).collect(Collectors.toCollection(LinkedList::new));
+
+        Queue<InvoiceProduct> salesInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.SALES))
+                .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.AWAITING_APPROVAL))
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate())).collect(Collectors.toCollection(LinkedList::new));
+        
+        return Objects.requireNonNull(salesInvoiceProducts.poll()).getPrice().subtract(Objects.requireNonNull(purchaseInvoiceProducts.poll()).getPrice());
+
     }
 
 }
