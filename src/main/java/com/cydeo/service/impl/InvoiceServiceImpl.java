@@ -17,6 +17,7 @@ import com.cydeo.service.ProductService;
 import com.cydeo.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -143,48 +144,72 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .filter(invoice -> invoice.getInvoiceType().equals(InvoiceType.SALES))
                 .map(this::convertToDto)
                 .peek(invoiceDto -> {
-            invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
-            invoiceDto.setTax(calculateGrandTax(invoiceDto.getId()));
-            invoiceDto.setPrice(calculateInvoicePrice(invoiceDto.getId()));
-        })
+                    invoiceDto.setTotal(calculateGrandTotal(invoiceDto.getId()));
+                    invoiceDto.setTax(calculateGrandTax(invoiceDto.getId()));
+                    invoiceDto.setPrice(calculateInvoicePrice(invoiceDto.getId()));
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public void approvePurchaseInvoice(Long invoiceId) {
         invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId)
-        .forEach(invoiceProductDto -> { 
-            ProductDto product = invoiceProductDto.getProduct();
-            product.setQuantityInStock(product.getQuantityInStock() + invoiceProductDto.getQuantity());
-            productService.updateProduct(product);
-            invoiceProductDto.setProduct(product);
-            invoiceProductDto.setInvoice(findById(invoiceId));
-            invoiceProductService.saveInvoiceProduct(invoiceProductDto);
-        });
-    
-    Invoice invoiceById = findInvoiceById(invoiceId);
-    invoiceById.setDate(LocalDate.now());
-    invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
-    invoiceRepository.save(invoiceById);
-}
-
-    @Override
-    public void approveSalesInvoice(Long invoiceId) {
-        invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId)
                 .forEach(invoiceProductDto -> {
                     ProductDto product = invoiceProductDto.getProduct();
-                    product.setQuantityInStock(product.getQuantityInStock() - invoiceProductDto.getQuantity());
+                    product.setQuantityInStock(product.getQuantityInStock() + invoiceProductDto.getQuantity());
                     productService.updateProduct(product);
                     invoiceProductDto.setProduct(product);
-                    invoiceProductDto.setProfitLoss(calculateProfitLoss(invoiceProductDto.getQuantity(), product.getId()));
                     invoiceProductDto.setInvoice(findById(invoiceId));
                     invoiceProductService.saveInvoiceProduct(invoiceProductDto);
                 });
+
         Invoice invoiceById = findInvoiceById(invoiceId);
         invoiceById.setDate(LocalDate.now());
         invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoiceRepository.save(invoiceById);
     }
+
+    @Transactional
+    @Override
+    public void approveSalesInvoice(Long invoiceId) {
+        // Process all invoice products
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId);
+        for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
+            updateProductInventory(invoiceProductDto);
+            updateInvoiceProductDetails(invoiceProductDto, invoiceId);
+        }
+
+        // Update invoice status
+        Invoice invoice = updateInvoiceStatus(invoiceId);
+        
+        // Calculate and set profit/loss for each invoice product
+        // We need to get the actual entities because we need to set the profitLoss field
+        List<InvoiceProduct> invoiceProductEntities = invoiceProductRepository.findAllByInvoiceId(invoiceId);
+        for (InvoiceProduct invoiceProduct : invoiceProductEntities) {
+            calculateAndSetProfitLoss(invoiceProduct);
+        }
+    }
+
+    private Invoice updateInvoiceStatus(Long invoiceId) {
+        Invoice invoice = findInvoiceById(invoiceId);
+        invoice.setDate(LocalDate.now());
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+        return invoiceRepository.save(invoice);
+    }
+
+    @Transactional
+    public void calculateProfitLossForAllApprovedSales() {
+        List<InvoiceProduct> salesInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .filter(ip -> ip.getInvoice().getInvoiceType().equals(InvoiceType.SALES))
+                .filter(ip -> ip.getInvoice().getInvoiceStatus().equals(InvoiceStatus.APPROVED))
+                .filter(ip -> ip.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
+                .collect(Collectors.toList());
+        
+        for (InvoiceProduct salesInvoiceProduct : salesInvoiceProducts) {
+            calculateAndSetProfitLoss(salesInvoiceProduct);
+        }
+    }
+
 
     @Override
     public List<InvoiceDto> listLast3Approved() {
@@ -241,29 +266,107 @@ public class InvoiceServiceImpl implements InvoiceService {
         String SEQUENCE_NUMBER_LENGTH = "3";
         return String.format("%0" + SEQUENCE_NUMBER_LENGTH + "d", nextSequence);
     }
-    
-    private BigDecimal calculateProfitLoss(Integer quantitySold, Long productId){
-        List<InvoiceProduct> purchaseInvoiceProducts = invoiceProductRepository.findAll().stream()
+
+    private BigDecimal calculateProfitLoss(Integer quantitySold, Queue<InvoiceProduct> purchaseQ, Queue<InvoiceProduct> salesQ) {
+
+        return salesQ.poll().getPrice().subtract(purchaseQ.poll().getPrice()).multiply(BigDecimal.valueOf(quantitySold));
+    }
+
+    private Queue<InvoiceProduct> getPurchaseQ(Long productId) {
+        return invoiceProductRepository.findAll().stream()
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.PURCHASE))
                 .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.AWAITING_APPROVAL))
-                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate()))
-                .collect(Collectors.toList());
-        
-        Queue<InvoiceProduct> purchaseQ = new LinkedList<>(purchaseInvoiceProducts);
-        
-        List<InvoiceProduct> salesInvoiceProducts = invoiceProductRepository.findAll().stream()
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate())).collect(Collectors.toCollection(LinkedList::new));
+
+    }
+
+    private Queue<InvoiceProduct> getSalesQ(Long productId) {
+        return invoiceProductRepository.findAll().stream()
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.SALES))
                 .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.AWAITING_APPROVAL))
-                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate()))
-                .collect(Collectors.toList());
-        Queue<InvoiceProduct> salesQ = new LinkedList<>(salesInvoiceProducts);
-        
-        return salesQ.remove().getPrice().subtract(purchaseQ.remove().getPrice()).multiply(BigDecimal.valueOf(quantitySold));
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate())).collect(Collectors.toCollection(LinkedList::new));
 
     }
 
+
+    private void updateProductInventory(InvoiceProductDto invoiceProductDto) {
+        ProductDto product = invoiceProductDto.getProduct();
+        
+        // Update product quantity
+        int newQuantity = product.getQuantityInStock() - invoiceProductDto.getQuantity();
+        product.setQuantityInStock(newQuantity);
+        productService.updateProduct(product);
+    }
+
+    private void updateInvoiceProductDetails(InvoiceProductDto invoiceProductDto, Long invoiceId) {
+        invoiceProductDto.setInvoice(findById(invoiceId));
+        invoiceProductService.saveInvoiceProduct(invoiceProductDto);
+    }
+
+    /**
+     * Calculates and sets the profit/loss for a specific sales invoice product using FIFO method
+     * @param salesInvoiceProduct The sales invoice product to calculate profit/loss for
+     */
+    private void calculateAndSetProfitLoss(InvoiceProduct salesInvoiceProduct) {
+        if (salesInvoiceProduct.getInvoice().getInvoiceType() != InvoiceType.SALES) {
+            // Only calculate profit/loss for sales invoice products
+            return;
+        }
+        
+        Long productId = salesInvoiceProduct.getProduct().getId();
+        int quantityToMatch = salesInvoiceProduct.getQuantity();
+        BigDecimal salePrice = salesInvoiceProduct.getPrice();
+        BigDecimal totalProfitLoss = BigDecimal.ZERO;
+        
+        // Get a queue of purchase invoice products for this product, sorted by date (FIFO)
+        Queue<InvoiceProduct> purchaseQ = getPurchaseQForProfitLoss(productId);
+        
+        // Match this sale with purchases using FIFO
+        while (quantityToMatch > 0 && !purchaseQ.isEmpty()) {
+            InvoiceProduct purchase = purchaseQ.peek();
+            int availablePurchaseQuantity = purchase.getQuantity();
+            BigDecimal purchasePrice = purchase.getPrice();
+            
+            // Determine how many units to match with this purchase
+            int unitsToMatch = Math.min(quantityToMatch, availablePurchaseQuantity);
+            
+            // Calculate profit/loss for this match
+            BigDecimal profitPerUnit = salePrice.subtract(purchasePrice);
+            BigDecimal profitForMatch = profitPerUnit.multiply(BigDecimal.valueOf(unitsToMatch));
+            totalProfitLoss = totalProfitLoss.add(profitForMatch);
+            
+            // Update remaining quantities
+            quantityToMatch -= unitsToMatch;
+            
+            if (unitsToMatch >= availablePurchaseQuantity) {
+                // We've used up this purchase, remove it
+                purchaseQ.poll();
+            } else {
+                // We've only used part of this purchase
+                purchase.setQuantity(availablePurchaseQuantity - unitsToMatch);
+            }
+        }
+        
+        // Set the profit/loss field on the sales invoice product
+        salesInvoiceProduct.setProfitLoss(totalProfitLoss.round(MathContext.DECIMAL32));
+        invoiceProductRepository.save(salesInvoiceProduct);
+    }
+
+    /**
+     * Gets a queue of purchase invoice products for a specific product, sorted by date (FIFO)
+     * This is specific for profit/loss calculation and only includes APPROVED invoices
+     */
+    private Queue<InvoiceProduct> getPurchaseQForProfitLoss(Long productId) {
+        return invoiceProductRepository.findAll().stream()
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceType().equals(InvoiceType.PURCHASE))
+                .filter(invoiceProduct -> invoiceProduct.getProduct().getId().equals(productId))
+                .filter(invoiceProduct -> invoiceProduct.getInvoice().getInvoiceStatus().equals(InvoiceStatus.APPROVED))
+                .sorted(Comparator.comparing((InvoiceProduct invoiceProduct) -> invoiceProduct.getInvoice().getDate()))
+                .collect(Collectors.toCollection(LinkedList::new));
+    }
 }
