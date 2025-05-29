@@ -24,4 +24,5 @@ public interface InvoiceService {
     void approvePurchaseInvoice(Long invoiceId);
     void approveSalesInvoice(Long invoiceId);
     List<InvoiceDto> listLast3Approved();
+    void calculateProfitLossForAllApprovedSales();
 }
