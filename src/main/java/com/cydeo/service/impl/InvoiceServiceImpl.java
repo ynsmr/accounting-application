@@ -153,20 +153,22 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void approvePurchaseInvoice(Long invoiceId) {
-        invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId)
-                .forEach(invoiceProductDto -> {
-                    ProductDto product = invoiceProductDto.getProduct();
-                    product.setQuantityInStock(product.getQuantityInStock() + invoiceProductDto.getQuantity());
-                    productService.updateProduct(product);
-                    invoiceProductDto.setProduct(product);
-                    invoiceProductDto.setInvoice(findById(invoiceId));
-                    invoiceProductService.saveInvoiceProduct(invoiceProductDto);
-                });
+        // Process all invoice products
+        List<InvoiceProductDto> invoiceProducts = invoiceProductService.findInvoiceProductsByInvoiceId(invoiceId);
+        for (InvoiceProductDto invoiceProductDto : invoiceProducts) {
+            updateProductInventoryForPurchase(invoiceProductDto);
+            updateInvoiceProductDetails(invoiceProductDto, invoiceId);
+        }
 
-        Invoice invoiceById = findInvoiceById(invoiceId);
-        invoiceById.setDate(LocalDate.now());
-        invoiceById.setInvoiceStatus(InvoiceStatus.APPROVED);
-        invoiceRepository.save(invoiceById);
+        // Update invoice status
+        updateInvoiceStatus(invoiceId);
+    }
+
+    private void updateProductInventoryForPurchase(InvoiceProductDto invoiceProductDto) {
+        ProductDto product = invoiceProductDto.getProduct();
+        // For purchase invoices, we increase the inventory
+        product.setQuantityInStock(product.getQuantityInStock() + invoiceProductDto.getQuantity());
+        productService.updateProduct(product);
     }
 
     @Transactional
