@@ -3,6 +3,7 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.entity.ClientVendor;
 import com.cydeo.enums.ClientVendorType;
+import com.cydeo.exception.ClientVendorNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ClientVendorRepository;
 import com.cydeo.service.ClientVendorService;
@@ -68,7 +69,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     private ClientVendor findClientVendorById(Long id){
         return clientVendorRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No such client/vendor found"));
+                .orElseThrow(() -> new ClientVendorNotFoundException("No such client/vendor found"));
     }
     
     private ClientVendorDto convertToDto(ClientVendor clientVendor){
