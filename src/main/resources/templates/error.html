@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+</head>
+<body>
+    <h1>Error Occurred</h1>
+    <p>
+        <strong>Message:</strong>
+        <span th:if="${message != null}" th:text="${message}"></span>
+        <span th:if="${message == null}">Something went wrong!</span>
+    </p>
+
+    <div th:if="${stackTrace != null}">
+        <strong>Stack trace:</strong>
+        <ul>
+            <li th:each="trace : ${stackTrace}" th:text="${trace}"></li>
+        </ul>
+    </div>
+</body>
+</html>

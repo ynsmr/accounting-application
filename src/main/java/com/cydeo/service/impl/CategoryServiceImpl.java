@@ -3,6 +3,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.CategoryDto;
 import com.cydeo.entity.Category;
+import com.cydeo.exception.CategoryNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CategoryRepository;
 import com.cydeo.service.CategoryService;
@@ -77,7 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
     
     private Category findCategoryById(Long categoryId){
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NoSuchElementException("No such category found"));
+                .orElseThrow(() -> new CategoryNotFoundException("No such category found"));
     }
     
  

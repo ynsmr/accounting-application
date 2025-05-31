@@ -4,6 +4,7 @@ import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.entity.Product;
 import com.cydeo.enums.InvoiceStatus;
+import com.cydeo.exception.InvoiceProductNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.service.InvoiceProductService;
@@ -82,7 +83,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     public void removeInvoiceProduct(Long invoiceId, Long invoiceProductId) {
         InvoiceProduct invoiceProductById = findInvoiceProductById(invoiceProductId);
         if (!invoiceProductById.getInvoice().getId().equals(invoiceId)){
-            throw new RuntimeException("Given invoice product is not associated with given invoice.");
+            throw new InvoiceProductNotFoundException("Given invoice product is not associated with given invoice.");
         }
         softDeleteInvoiceProduct(invoiceProductById);
     }
@@ -97,7 +98,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private InvoiceProduct findInvoiceProductById(Long invoiceProductId) {
         return invoiceProductRepository.findById(invoiceProductId)
-                .orElseThrow(() -> new NoSuchElementException("No invoice product with Id: " + invoiceProductId));
+                .orElseThrow(() -> new InvoiceProductNotFoundException("No invoice product with Id: " + invoiceProductId));
     }
 
     private void softDeleteInvoiceProduct(InvoiceProduct invoiceProduct) {

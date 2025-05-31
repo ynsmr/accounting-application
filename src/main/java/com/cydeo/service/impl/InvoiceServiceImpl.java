@@ -8,6 +8,7 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
+import com.cydeo.exception.InvoiceNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.respository.InvoiceRepository;
@@ -238,7 +239,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private Invoice findInvoiceById(Long invoiceId) {
         return invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new NoSuchElementException("No invoice found with id: " + invoiceId));
+                .orElseThrow(() -> new InvoiceNotFoundException("No invoice found with id: " + invoiceId));
     }
 
     private void softDeleteInvoice(Invoice invoice) {

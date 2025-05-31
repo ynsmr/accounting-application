@@ -3,6 +3,7 @@ package com.cydeo.service.impl;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.entity.Company;
 import com.cydeo.enums.CompanyStatus;
+import com.cydeo.exception.CompanyNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CompanyRepository;
 import com.cydeo.service.CompanyService;
@@ -27,7 +28,7 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyDto findCompanyByUser(Long userId) {
         return convertToCompanyDTO(companyRepository
                 .findCompanyByLoggedInUser(userId)
-                .orElseThrow(() -> new NoSuchElementException("No associated company found")));
+                .orElseThrow(() -> new CompanyNotFoundException("No associated company found")));
     }
 
     @Override
@@ -96,7 +97,7 @@ public class CompanyServiceImpl implements CompanyService {
     
     private Company findCompanyById(Long companyId){
         return companyRepository.findById(companyId)
-                .orElseThrow(() -> new NoSuchElementException("No company found with id: " + companyId));
+                .orElseThrow(() -> new CompanyNotFoundException("No company found with id: " + companyId));
     }
     
     private void softDeleteCompany(Company company){

@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.UserDto;
 import com.cydeo.entity.User;
+import com.cydeo.exception.UserNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.UserRepository;
 import com.cydeo.service.UserService;
@@ -31,7 +32,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
     public UserDto findByUsername(String username) {
         Optional<User> userRetrieved = userRepository.findByUsername(username);
         if (userRetrieved.isEmpty()){
-            throw new NoSuchElementException("No such user found on DB");
+            throw new UserNotFoundException("No such user found on DB");
         }
         return mapperUtil.convert(userRetrieved, new UserDto());
     }
@@ -162,7 +163,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
     public User getLoggedInUser(){
         String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByUsername(loggedInUser)
-                .orElseThrow(()-> new NoSuchElementException("Current user not found in DB."));
+                .orElseThrow(()-> new UserNotFoundException("Current user not found in DB."));
     }
     
 }
