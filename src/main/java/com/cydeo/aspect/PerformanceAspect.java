@@ -14,7 +14,7 @@ public class PerformanceAspect {
 
     
     @Pointcut("@annotation(com.cydeo.annotation.ExecutionTime)")
-    private void anyExecutionTimeOperation(){};
+    private void anyExecutionTimeOperation(){}
     
     @Around("anyExecutionTimeOperation()")
     public Object anyExecutionTimeOperationAdvice(ProceedingJoinPoint proceedingJoinPoint){
