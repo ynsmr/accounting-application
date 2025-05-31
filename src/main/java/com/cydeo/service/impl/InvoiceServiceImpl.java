@@ -309,10 +309,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceProductService.saveInvoiceProduct(invoiceProductDto);
     }
 
-    /**
-     * Calculates and sets the profit/loss for a specific sales invoice product using FIFO method
-     * @param salesInvoiceProduct The sales invoice product to calculate profit/loss for
-     */
+
     private void calculateAndSetProfitLoss(InvoiceProduct salesInvoiceProduct) {
         if (salesInvoiceProduct.getInvoice().getInvoiceType() != InvoiceType.SALES) {
             // Only calculate profit/loss for sales invoice products
@@ -357,11 +354,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         salesInvoiceProduct.setProfitLoss(totalProfitLoss.round(MathContext.DECIMAL32));
         invoiceProductRepository.save(salesInvoiceProduct);
     }
-
-    /**
-     * Gets a queue of purchase invoice products for a specific product, sorted by date (FIFO)
-     * This is specific for profit/loss calculation and only includes APPROVED invoices
-     */
+    
     private Queue<InvoiceProduct> getPurchaseQForProfitLoss(Long productId) {
         return invoiceProductRepository.findAll().stream()
                 .filter(invoiceProduct -> invoiceProduct.getInvoice().getCompany().getId().equals(userService.getLoggedInUser().getCompany().getId()))
