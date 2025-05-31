@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.ProductDto;
 import com.cydeo.entity.Product;
+import com.cydeo.exception.ProductNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ProductRepository;
 import com.cydeo.service.InvoiceProductService;
@@ -76,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
     
     private Product findProductById(Long productId){
         return productRepository.findById(productId)
-                .orElseThrow(() -> new NoSuchElementException("No product found with id: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException("No product found with id: " + productId));
     }
     
     private void softDeleteProduct(Product product){

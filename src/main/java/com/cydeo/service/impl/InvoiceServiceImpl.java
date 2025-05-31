@@ -9,6 +9,8 @@ import com.cydeo.entity.InvoiceProduct;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
 import com.cydeo.exception.InvoiceNotFoundException;
+import com.cydeo.exception.ProductLowLimitAlert;
+import com.cydeo.exception.ProductNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.respository.InvoiceRepository;
@@ -191,6 +193,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         for (InvoiceProduct invoiceProduct : invoiceProductEntities) {
             calculateAndSetProfitLoss(invoiceProduct);
         }
+        
     }
 
     private Invoice updateInvoiceStatus(Long invoiceId) {
@@ -301,8 +304,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         
         // Update product quantity
         int newQuantity = product.getQuantityInStock() - invoiceProductDto.getQuantity();
+        if (newQuantity <= 0){
+            throw new ProductNotFoundException("There is no enough stock of " + product.getName() + " please update the invoice");
+        }
         product.setQuantityInStock(newQuantity);
         productService.updateProduct(product);
+        if (newQuantity < invoiceProductDto.getProduct().getLowLimitAlert()){
+            throw new ProductLowLimitAlert("Product " + invoiceProductDto.getProduct().getName()+ " has now fallen below the low limit set: " + invoiceProductDto.getProduct().getLowLimitAlert());
+        }
     }
 
     private void updateInvoiceProductDetails(InvoiceProductDto invoiceProductDto, Long invoiceId) {
