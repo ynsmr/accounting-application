@@ -58,9 +58,9 @@
                                         <span th:unless="${payment.isPaid}" class="badge badge-warning">Unpaid</span>
                                     </td>
                                     <td>
-                                        <a th:if="${!payment.isPaid}" th:href="@{|/payment/pay/${payment.id}|}"
+                                        <a th:if="${!payment.isPaid}" th:href="@{|/payments/pay/${payment.id}|}"
                                            class="btn btn-success btn-sm">Pay</a>
-                                        <a th:if="${payment.isPaid}" th:href="@{|/payment/invoice/${payment.id}|}"
+                                        <a th:if="${payment.isPaid}" th:href="@{|/payments/invoice/${payment.id}|}"
                                            class="btn btn-info btn-sm">Invoice</a>
                                     </td>
                                 </tr>
