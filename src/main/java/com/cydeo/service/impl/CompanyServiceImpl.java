@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.client.CountryClient;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.entity.Company;
 import com.cydeo.enums.CompanyStatus;
@@ -11,6 +12,7 @@ import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -22,6 +24,7 @@ public class CompanyServiceImpl implements CompanyService {
     
     private final CompanyRepository companyRepository;
     private final UserService userService;
+    private final CountryClient countryClient;
     private final MapperUtil mapperUtil;
 
     @Override
@@ -84,6 +87,18 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Long retrieveCurrentCompany() {
         return userService.getLoggedInUser().getCompany().getId();
+    }
+
+    @Override
+    public List<String> getOfficialCountryNames() {
+       return countryClient.getCountries("name").stream()
+        .map(country -> country.getName().getOfficial())
+        .sorted((c1, c2) -> {
+            if (c1.equals("United States of America")) return -1;  // c1 (US) is always "less than" c2
+            if (c2.equals("United States of America")) return 1;   // c2 (US) is always "greater than" c1
+            return c1.compareTo(c2);                    // otherwise, use alphabetical order
+        })
+        .collect(Collectors.toList());
     }
 
     private CompanyDto convertToCompanyDTO(Company company){

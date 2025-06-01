@@ -1,4 +1,5 @@
 package com.cydeo.controller;
+import com.cydeo.client.CountryClient;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.service.CompanyService;
 import org.springframework.stereotype.Controller;
@@ -17,7 +18,6 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
-    
     @GetMapping("/list")
     public String companyList(Model model){
         model.addAttribute("companies", companyService.listAllCompanies());
@@ -27,12 +27,14 @@ public class CompanyController {
     @GetMapping("/create")
     public String createCompanyPage(Model model){
         model.addAttribute("newCompany", new CompanyDto());
+        model.addAttribute("countries", companyService.getOfficialCountryNames());
         return "company/company-create";
     }
     
     @GetMapping("/update/{companyId}")
     public String updateCompanyPage(@PathVariable("companyId") Long companyId, Model model){
         model.addAttribute("company" ,companyService.findById(companyId));
+        model.addAttribute("countries", companyService.getOfficialCountryNames());
         return "company/company-update";
     }
     

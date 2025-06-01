@@ -174,9 +174,9 @@
                                                             <div class="form-group">
                                                                 <div class="controls">
                                                                     <label>Country</label>
-                                                                    <input type="text" th:field="*{address.country}"
-                                                                           placeholder="Country"
-                                                                           class="form-control">
+                                                                    <select th:field="*{address.country}" class="form-control">
+                                                                        <option value="" disabled selected>Select Country</option>
+                                                                        <option th:each="country : ${countries}" th:value="${country}" th:text="${country}"></option>
                                                                     </select>
                                                                     <div th:if="${#fields.hasErrors('address.country')}">
                                                                         <ul>

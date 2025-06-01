@@ -17,6 +17,7 @@ public interface CompanyService {
     void activate(Long companyId);
     void deactivate(Long companyId);
     Long retrieveCurrentCompany();
+    List<String> getOfficialCountryNames();
     
     
 }

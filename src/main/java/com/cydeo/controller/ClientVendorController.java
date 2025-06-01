@@ -2,6 +2,7 @@ package com.cydeo.controller;
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.service.ClientVendorService;
+import com.cydeo.service.CompanyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,11 +16,13 @@ import java.util.Arrays;
 public class ClientVendorController {
 
     private final ClientVendorService clientVendorService;
+    private final CompanyService companyService;
 
-    public ClientVendorController(ClientVendorService clientVendorService) {
+    public ClientVendorController(ClientVendorService clientVendorService, CompanyService companyService) {
         this.clientVendorService = clientVendorService;
+        this.companyService = companyService;
     }
-    
+
     @GetMapping("/list")
     public String listClientVendors(Model model){
         model.addAttribute("clientVendors", clientVendorService.listAll());
@@ -30,6 +33,7 @@ public class ClientVendorController {
     public String createClientVendorPage(Model model){
         model.addAttribute("newClientVendor", new ClientVendorDto());
         model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+        model.addAttribute("countries", companyService.getOfficialCountryNames());
         return "clientVendor/clientVendor-create";
     }
 
@@ -37,6 +41,7 @@ public class ClientVendorController {
     public String updateClientVendorPage(@PathVariable("clientVendorId") Long clientVendorId, Model model){
         model.addAttribute("clientVendor", clientVendorService.findById(clientVendorId));
         model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+        model.addAttribute("countries", companyService.getOfficialCountryNames());
         return "clientVendor/clientVendor-update";
     }
     
@@ -51,6 +56,7 @@ public class ClientVendorController {
         
         if (bindingResult.hasErrors()){
             model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+            model.addAttribute("countries", companyService.getOfficialCountryNames());
             return "clientVendor/clientVendor-create";
         }
         clientVendorService.saveClientVendor(clientVendorDto);
@@ -64,6 +70,7 @@ public class ClientVendorController {
         if (bindingResult.hasErrors()){
             model.addAttribute("clientVendor", clientVendorDto);
             model.addAttribute("clientVendorTypes", Arrays.asList(ClientVendorType.values()));
+            model.addAttribute("countries", companyService.getOfficialCountryNames());
             return "clientVendor/clientVendor-update";
         }
         clientVendorService.updateClientVendor(clientVendorDto);
