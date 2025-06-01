@@ -9,4 +9,5 @@ public interface PaymentService {
     
     List<PaymentDto> listAllPayments();
     List<PaymentDto> listPaymentsByYear(int year);
+    void savePayment(PaymentDto paymentDto);
 }

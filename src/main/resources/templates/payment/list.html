@@ -13,70 +13,64 @@
                 </header>
                 <div class="ecommerce-widget">
 
-                    <!-- Year Selector -->
-                    <form class="form-inline mb-3" th:action="@{/payment/list}" method="get">
-                        <label for="year" class="mr-2 font-weight-bold">Year:</label>
-                        <select id="year" name="year" class="form-control mr-2">
-                            <option th:each="year : ${years}" th:value="${year}" th:text="${year}"
-                                    th:selected="${year == selectedYear}"></option>
-                        </select>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                    <!-- Year Input Form -->
+                    <form class="form-inline mb-3" th:action="@{/payments/list}" method="get">
+                        <div class="form-group">
+                            <label for="year" class="mr-2 font-weight-bold">Year:</label>
+                            <input type="number" id="year" name="year" class="form-control mr-2"
+                                   th:value="${selectedYear}"
+                                   min="2000" max="2099" step="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search</button>
                     </form>
 
-                    <!-- Search (HTML-Only, for enhancement) -->
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <input type="search" class="form-control" placeholder="Search..." id="payment-search">
-                        </div>
+                    <!-- Error Message Display -->
+                    <div th:if="${errorMessage}" class="alert alert-warning mt-2" role="alert">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span th:text="${errorMessage}"></span>
                     </div>
 
-                    <!-- Payments Table -->
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered" id="payments-table">
-                            <thead>
+                    <!-- Payment List Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Payment List</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Payment Month</th>
+                                    <th>Month</th>
                                     <th>Amount</th>
+                                    <th>Payment Date</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            </thead>
-                            <tbody>
+                                </thead>
+                                <tbody>
                                 <tr th:each="payment, iterStat : ${payments}">
                                     <td th:text="${iterStat.count}"></td>
                                     <td th:text="${payment.month.value}"></td>
                                     <td>$<span th:text="${payment.amount}"></span></td>
+                                    <td th:text="${payment.paymentDate != null ? #temporals.format(payment.paymentDate, 'MM/dd/yyyy') : 'N/A'}"></td>
                                     <td>
-                                        <a th:if="${payment.status == 'UNPAID'}"
-                                           th:href="@{|/payment/pay/${payment.id}|}"
+                                        <span th:if="${payment.isPaid}" class="badge badge-success">Paid</span>
+                                        <span th:unless="${payment.isPaid}" class="badge badge-warning">Unpaid</span>
+                                    </td>
+                                    <td>
+                                        <a th:if="${!payment.isPaid}" th:href="@{|/payment/pay/${payment.id}|}"
                                            class="btn btn-success btn-sm">Pay</a>
-                                        <a th:if="${payment.status == 'PAID'}"
-                                           th:href="@{|/payment/invoice/${payment.id}|}"
+                                        <a th:if="${payment.isPaid}" th:href="@{|/payment/invoice/${payment.id}|}"
                                            class="btn btn-info btn-sm">Invoice</a>
                                     </td>
                                 </tr>
-                            </tbody>
-                        </table>
+                                <tr th:if="${#lists.isEmpty(payments)}">
+                                    <td colspan="6" class="text-center">No payments found for selected year</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
-                    <!-- Pagination Controls -->
-                    <nav th:if="${totalPages > 0}">
-                        <ul class="pagination justify-content-center" id="table-pagination">
-                            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
-                                <a class="page-link" th:href="@{/payment/list(year=${selectedYear},page=${currentPage > 1 ? currentPage - 1 : 1},size=${size})}">Prev</a>
-                            </li>
-                            <li class="page-item" 
-                                th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
-                                th:classappend="${currentPage == pageNum} ? 'active'">
-                                <a class="page-link" 
-                                   th:href="@{/payment/list(year=${selectedYear},page=${pageNum},size=${size})}"
-                                   th:text="${pageNum}"></a>
-                            </li>
-                            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
-                                <a class="page-link" th:href="@{/payment/list(year=${selectedYear},page=${currentPage < totalPages ? currentPage + 1 : totalPages},size=${size})}">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
 
                 </div>
             </div>
