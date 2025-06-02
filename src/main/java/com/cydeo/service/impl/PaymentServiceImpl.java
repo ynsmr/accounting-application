@@ -4,12 +4,14 @@ import com.cydeo.dto.PaymentDto;
 import com.cydeo.entity.Payment;
 import com.cydeo.enums.Month;
 import com.cydeo.exception.InvalidYearException;
+import com.cydeo.exception.PaymentNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.PaymentRepository;
 import com.cydeo.service.PaymentService;
 import com.cydeo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -90,5 +92,21 @@ public class PaymentServiceImpl implements PaymentService {
         return userService.getLoggedInUser().getCompany().getInsertDateTime().getYear() <= year;
     }
     
+    @Override
+    public PaymentDto getPaymentById(Long id) {
+        Payment payment = paymentRepository.findById(id)
+            .orElseThrow(() -> new PaymentNotFoundException("Payment not found with id: " + id));
+        return mapperUtil.convert(payment, new PaymentDto());
+    }
+
+    @Override
+    @Transactional
+    public void markAsPaid(Long id) {
+        Payment payment = paymentRepository.findById(id)
+            .orElseThrow(() -> new PaymentNotFoundException("Payment not found with id: " + id));
     
+        payment.setPaid(true);
+        payment.setPaymentDate(LocalDate.now());
+        paymentRepository.save(payment);
+    }
 }

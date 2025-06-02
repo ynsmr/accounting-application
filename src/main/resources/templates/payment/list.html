@@ -30,6 +30,9 @@
                         <span th:text="${errorMessage}"></span>
                     </div>
 
+                    <!-- Stripe.js Script - Load Once -->
+                    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+
                     <!-- Payment List Table -->
                     <div class="card">
                         <div class="card-header">
@@ -58,8 +61,10 @@
                                         <span th:unless="${payment.isPaid}" class="badge badge-warning">Unpaid</span>
                                     </td>
                                     <td>
-                                        <a th:if="${!payment.isPaid}" th:href="@{|/payments/pay/${payment.id}|}"
-                                           class="btn btn-success btn-sm">Pay</a>
+                                        <!-- Only show payment options for unpaid payments -->
+                                        <div th:if="${!payment.isPaid}">
+                                            <a th:href="@{|/payments/pay/${payment.id}|}" class="btn btn-success btn-sm">Pay the fee</a>
+                                        </div>
                                         <a th:if="${payment.isPaid}" th:href="@{|/payments/invoice/${payment.id}|}"
                                            class="btn btn-info btn-sm">Invoice</a>
                                     </td>
