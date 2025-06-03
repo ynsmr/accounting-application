@@ -40,8 +40,6 @@ private static final Long ADMIN_ROLE_ID = 2L;
     @Override
     public List<UserDto> listAllUsers() {
         User loggedInUser = getLoggedInUser();
-        userIsOnlyAdmin(loggedInUser);
-        
         if (!notARootUser() && !isAdminUser()) {
             // Root user who is not admin - show only admin users
             return filterAndMapUsers(
