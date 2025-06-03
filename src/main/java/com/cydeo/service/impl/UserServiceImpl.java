@@ -34,7 +34,7 @@ private static final Long ADMIN_ROLE_ID = 2L;
         if (userRetrieved.isEmpty()){
             throw new UserNotFoundException("No such user found on DB");
         }
-        return mapperUtil.convert(userRetrieved, new UserDto());
+        return mapperUtil.convert(userRetrieved.get(), new UserDto());
     }
 
     @Override
