@@ -30,8 +30,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -176,6 +175,15 @@ public class ProductServiceTest {
 
     }
     
+    @Test
+    void should_delete_product(){
+        mockAuthentication();
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(productRepository.save(any())).thenReturn(product);
+        productService.deleteProduct(product.getId());
+        assertTrue(product.getIsDeleted());
+    }
+    
     private void mockAuthentication(){
         User user = new User();
         user.setId(1L);
@@ -189,7 +197,7 @@ public class ProductServiceTest {
         company.setCompanyStatus(CompanyStatus.ACTIVE);
         user.setCompany(company);
         
-        when(userService.getLoggedInUser()).thenReturn(user);
+        lenient().when(userService.getLoggedInUser()).thenReturn(user);
         
         lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         lenient().when(authentication.getName()).thenReturn(user.getUsername());
