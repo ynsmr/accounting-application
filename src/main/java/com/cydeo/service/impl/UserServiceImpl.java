@@ -1,6 +1,8 @@
 package com.cydeo.service.impl;
 
 import com.cydeo.dto.UserDto;
+import com.cydeo.entity.Company;
+import com.cydeo.entity.Role;
 import com.cydeo.entity.User;
 import com.cydeo.exception.UserNotFoundException;
 import com.cydeo.mapper.MapperUtil;
@@ -70,11 +72,11 @@ public List<UserDto> listAllUsers() {
         return user.isAccountNonLocked();
     }
 
-    private Comparator<User> createUserComparator() {
-        return Comparator
-                .comparing((User user) -> user.getCompany().getTitle())
-                .thenComparing(user -> user.getRole().getDescription());
-    }
+private Comparator<User> createUserComparator() {
+    return Comparator
+            .comparing((User user) -> Optional.ofNullable(user.getCompany()).map(Company::getTitle).orElse(""))
+            .thenComparing(user -> Optional.ofNullable(user.getRole()).map(Role::getDescription).orElse(""));
+}
 
     @Override
     public UserDto findById(Long userId) {

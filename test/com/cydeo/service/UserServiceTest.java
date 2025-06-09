@@ -63,17 +63,17 @@ public class UserServiceTest {
         user.setFirstname("firstname");
         user.setLastname("lastname");
         user.setPhone("123456789");
+        user.setAccountNonLocked(true);
+
+        Company company = new Company();
+        company.setCompanyStatus(CompanyStatus.ACTIVE);
+        company.setId(1L);
+        user.setCompany(company);
 
         Role role = new Role();
         role.setId(2L);
         user.setRole(role);
-
-        Company company = new Company();
-        company.setId(1L);
-        company.setCompanyStatus(CompanyStatus.ACTIVE);
-
-        user.setCompany(company);
-
+        
         //UserDto
         userDto = new UserDto();
         userDto.setId(1L);
@@ -81,16 +81,16 @@ public class UserServiceTest {
         userDto.setFirstname("firstname");
         userDto.setLastname("lastname");
         userDto.setPhone("123456789");
+        
+        CompanyDto companyDto = new CompanyDto();
+        companyDto.setCompanyStatus(CompanyStatus.ACTIVE);
+        company.setId(1L);
+      
 
         RoleDto roleDto = new RoleDto();
         roleDto.setId(2L);
         userDto.setRole(roleDto);
-
-        CompanyDto companyDto = new CompanyDto();
-        companyDto.setId(1L);
-        companyDto.setCompanyStatus(CompanyStatus.ACTIVE);
-
-        userDto.setCompany(companyDto);
+        
     }
 
     private List<User> getmultipleUsers() {
@@ -99,11 +99,17 @@ public class UserServiceTest {
         user1.setUsername("Johnny");
         user1.setFirstname("John");
         user1.setLastname("Wick");
+        user1.setAccountNonLocked(true);  // Ensure the user is active
 
         Company company = new Company();
-        company.setId(1L);
         company.setCompanyStatus(CompanyStatus.ACTIVE);
+        company.setId(1L);
         user1.setCompany(company);
+        
+        Role role = new Role();
+        role.setId(2L);  // Matches ADMIN_ROLE_ID in the method fetchUsersFilteredByRole
+        user1.setRole(role);
+        
 
         return List.of(user, user1);
     }
@@ -141,7 +147,7 @@ public class UserServiceTest {
 
         assertInstanceOf(UserNotFoundException.class, throwable);
 
-        assertEquals(throwable.getMessage(), "No such user found on DB");
+        assertEquals("No such user found on DB", throwable.getMessage());
     }
 
     @Test
@@ -150,27 +156,53 @@ public class UserServiceTest {
         Role role = new Role();
         role.setId(1L); // Root user role
         user.setRole(role);
+        
 
         // Mock SecurityContext and Authentication functionality
-        mockAuthentication("username");
-
-        // Mock userRepository interaction
-        when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
-
+        mockAuthentication();
+        
         // Mock the repository call for all users
         when(userRepository.findAll()).thenReturn(getmultipleUsers());
 
         // Act: Call the method under test
         List<UserDto> actualUsers = userService.listAllUsers();
         
+        assertEquals(1, actualUsers.size());
+        
         // Verify method calls
         verify(userRepository).findByUsername("username");
         verify(userRepository).findAll();
     }
     
-    private void mockAuthentication(String username) {
+    @Test
+    void should_return_allUsers(){
+        // Arrange: Root user role assignment
+        Role role = new Role();
+        role.setId(2L); // Root user role
+        user.setRole(role);
+
+
+        // Mock SecurityContext and Authentication functionality
+        mockAuthentication();
+
+        // Mock the repository call for all users
+        when(userRepository.findAll()).thenReturn(getmultipleUsers());
+
+        // Act: Call the method under test
+        List<UserDto> actualUsers = userService.listAllUsers();
+
+        assertEquals(2, actualUsers.size());
+
+        // Verify method calls
+        verify(userRepository).findByUsername("username");
+        verify(userRepository).findAll();
+    }
+    
+    private void mockAuthentication() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn(username);
+        when(authentication.getName()).thenReturn("username");
         SecurityContextHolder.setContext(securityContext);
+        // Mock userRepository interaction
+        when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
     }
 }
