@@ -37,25 +37,30 @@ private static final Long ADMIN_ROLE_ID = 2L;
         return mapperUtil.convert(userRetrieved.get(), new UserDto());
     }
 
-    @Override
-    public List<UserDto> listAllUsers() {
-        User loggedInUser = getLoggedInUser();
-        if (!notARootUser() && !isAdminUser()) {
-            // Root user who is not admin - show only admin users
-            return filterAndMapUsers(
-                user -> isActiveUser(user) && user.getRole().getId().equals(2L)
-            );
-        }
-        
-        // For admin users and the default case (including root+admin users)
-        return filterAndMapUsers(
-            user -> isActiveUser(user) && isSameCompanyAsLoggedInUser(user, loggedInUser)
-        );
+@Override
+public List<UserDto> listAllUsers() {
+    // Cache the logged-in user
+    User loggedInUser = getLoggedInUser();
+
+    if (!notARootUser(loggedInUser) && !isAdminUser(loggedInUser)) {
+        // Root user who is not admin
+        return fetchUsersFilteredByRole(ADMIN_ROLE_ID);
     }
-    
-    private List<UserDto> filterAndMapUsers(Predicate<User> filterPredicate) {
+
+    // Admin or default case
+    return fetchUsersByCompany(loggedInUser.getCompany().getId());
+}
+
+    private List<UserDto> fetchUsersFilteredByRole(Long roleId) {
         return userRepository.findAll().stream()
-                .filter(filterPredicate)
+                .filter(user -> isActiveUser(user) && roleId.equals(user.getRole().getId()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private List<UserDto> fetchUsersByCompany(Long companyId) {
+        return userRepository.findAll().stream()
+                .filter(user -> isActiveUser(user) && user.getCompany().getId().equals(companyId))
                 .sorted(createUserComparator())
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -63,10 +68,6 @@ private static final Long ADMIN_ROLE_ID = 2L;
 
     private boolean isActiveUser(User user) {
         return user.isAccountNonLocked();
-    }
-    
-    private boolean isSameCompanyAsLoggedInUser(User user, User loggedInUser) {
-        return user.getCompany().getId().equals(loggedInUser.getCompany().getId());
     }
 
     private Comparator<User> createUserComparator() {
@@ -129,10 +130,10 @@ private static final Long ADMIN_ROLE_ID = 2L;
         return adminCount == 1L;
     }
 
-    @Override
-    public boolean notARootUser() {
-        return !getLoggedInUser().getRole().getId().equals(1L);
-    }
+@Override
+public boolean notARootUser(User user) {
+    return !user.getRole().getId().equals(1L);
+}
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
@@ -153,9 +154,9 @@ private static final Long ADMIN_ROLE_ID = 2L;
         return mapperUtil.convert(userDto, new User());
     }
     
-    private boolean isAdminUser(){
-        return getLoggedInUser().getRole().getId().equals(2L);
-    }
+    public boolean isAdminUser(User loggedInUser) { // Accept cached user
+    return loggedInUser.getRole().getId().equals(2L);
+}
     
     @Override
     public User getLoggedInUser(){

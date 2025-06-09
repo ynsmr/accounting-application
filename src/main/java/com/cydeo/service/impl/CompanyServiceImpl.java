@@ -36,7 +36,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyDto> listAllCompanies() {
-        boolean isCurrentUserCompanyOnly = userService.notARootUser();
+        boolean isCurrentUserCompanyOnly = userService.notARootUser(userService.getLoggedInUser());
         return getFilteredCompanies(isCurrentUserCompanyOnly);
     }
 

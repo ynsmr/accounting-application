@@ -22,7 +22,7 @@ public interface UserService {
     
     boolean userIsOnlyAdmin(User user);
     
-    boolean notARootUser();
+    boolean notARootUser(User user);
     
     User getLoggedInUser();
     
