@@ -2,6 +2,7 @@ package com.cydeo.service;
 
 import com.cydeo.dto.RoleDto;
 import com.cydeo.entity.Role;
+import com.cydeo.exception.RoleNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.RoleRepository;
 import com.cydeo.service.impl.RoleServiceImpl;
@@ -23,6 +24,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -90,6 +94,29 @@ public class RoleServiceTest {
         
         verify(roleRepository).findAll();
     }
+    
+    @Test
+    void should_find_by_id(){
+        when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
+
+        RoleDto actualRole = roleService.findById(role.getId());
+        RoleDto expectedRole = roleDto;
+        
+        assertThat(expectedRole).usingRecursiveComparison().isEqualTo(actualRole);
+        verify(roleRepository).findById(role.getId());
+    }
+    
+    @Test
+    void should_not_find_by_id(){
+        when(roleRepository.findById(anyLong())).thenReturn(Optional.empty());
+        
+        Throwable throwable = catchThrowable(() -> roleService.findById(role.getId()));
+        assertInstanceOf(RoleNotFoundException.class, throwable);
+        assertEquals("No role found with id: " + role.getId(), throwable.getMessage());
+        verify(roleRepository).findById(role.getId());
+    }
+    
+    
     
     private void mockAuthentication(){
         lenient().when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
