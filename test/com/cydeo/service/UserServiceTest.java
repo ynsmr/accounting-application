@@ -19,9 +19,13 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,11 +33,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 import org.springframework.security.core.Authentication;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -224,7 +227,6 @@ public class UserServiceTest {
     void should_save_user(){
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenReturn(user);
-        
         userService.saveUser(userDto);
 
         assertTrue(user.isAccountNonLocked());
@@ -232,11 +234,56 @@ public class UserServiceTest {
         
     }
     
-    private void mockAuthentication() {
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getName()).thenReturn("username");
-        SecurityContextHolder.setContext(securityContext);
-        // Mock userRepository interaction
-        when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+    @Test
+    void should_update_user(){
+        when(userRepository.save(any())).thenReturn(user);
+        
+        userService.updateUser(userDto);
+        
+        verify(userRepository).save(user);
+        
     }
+    
+    @Test
+    void should_find_users_by_company_id(){
+        when(userRepository.findUsersByCompany_Id(anyLong())).thenReturn(getmultipleUsers());
+
+        List<User> actualUsers = userService.findUsersByCompanyId(1L);
+        List<User> expectedUsers = getmultipleUsers();
+        
+        assertThat(expectedUsers).usingRecursiveComparison().isEqualTo(actualUsers);
+        verify(userRepository).findUsersByCompany_Id(1L);
+    }
+    
+    @Test
+    void should_check_admin(){
+        mockAuthentication();
+        lenient().when(userRepository.findAll()).thenReturn(getmultipleUsers());
+
+        boolean actualBoolean = userService.userIsOnlyAdmin(user);
+        
+        assertTrue(actualBoolean);
+
+    }
+    
+    @Test
+    void should_not_be_root_user(){
+        boolean b = userService.notARootUser(user);
+        assertTrue(b);
+    }
+    
+   private void mockAuthentication() {
+       // Mock SecurityContext to return the mocked Authentication object
+       lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+
+       // Mock Authentication details (username and authorities)
+       lenient().when(authentication.getName()).thenReturn("username");
+       lenient().doReturn(List.of(new SimpleGrantedAuthority("Admin"))).when(authentication).getAuthorities();
+
+       // Set the mocked SecurityContext in the SecurityContextHolder
+       SecurityContextHolder.setContext(securityContext);
+
+       // Mock the user repository to return a user
+       lenient().when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+   }
 }

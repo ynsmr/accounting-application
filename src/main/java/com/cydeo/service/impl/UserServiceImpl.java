@@ -22,36 +22,36 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    
+
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
-    
-private static final String ADMIN_ROLE = "Admin";
-private static final Long ADMIN_ROLE_ID = 2L;
+
+    private static final String ADMIN_ROLE = "Admin";
+    private static final Long ADMIN_ROLE_ID = 2L;
 
 
     @Override
     public UserDto findByUsername(String username) {
         Optional<User> userRetrieved = userRepository.findByUsername(username);
-        if (userRetrieved.isEmpty()){
+        if (userRetrieved.isEmpty()) {
             throw new UserNotFoundException("No such user found on DB");
         }
         return mapperUtil.convert(userRetrieved.get(), new UserDto());
     }
 
-@Override
-public List<UserDto> listAllUsers() {
-    // Cache the logged-in user
-    User loggedInUser = getLoggedInUser();
+    @Override
+    public List<UserDto> listAllUsers() {
+        // Cache the logged-in user
+        User loggedInUser = getLoggedInUser();
 
-    if (!notARootUser(loggedInUser) && !isAdminUser(loggedInUser)) {
-        // Root user who is not admin
-        return fetchUsersFilteredByRole(ADMIN_ROLE_ID);
+        if (!notARootUser(loggedInUser) && !isAdminUser(loggedInUser)) {
+            // Root user who is not admin
+            return fetchUsersFilteredByRole(ADMIN_ROLE_ID);
+        }
+
+        // Admin or default case
+        return fetchUsersByCompany(loggedInUser.getCompany().getId());
     }
-
-    // Admin or default case
-    return fetchUsersByCompany(loggedInUser.getCompany().getId());
-}
 
     private List<UserDto> fetchUsersFilteredByRole(Long roleId) {
         return userRepository.findAll().stream()
@@ -72,11 +72,11 @@ public List<UserDto> listAllUsers() {
         return user.isAccountNonLocked();
     }
 
-private Comparator<User> createUserComparator() {
-    return Comparator
-            .comparing((User user) -> Optional.ofNullable(user.getCompany()).map(Company::getTitle).orElse(""))
-            .thenComparing(user -> Optional.ofNullable(user.getRole()).map(Role::getDescription).orElse(""));
-}
+    private Comparator<User> createUserComparator() {
+        return Comparator
+                .comparing((User user) -> Optional.ofNullable(user.getCompany()).map(Company::getTitle).orElse(""))
+                .thenComparing(user -> Optional.ofNullable(user.getRole()).map(Role::getDescription).orElse(""));
+    }
 
     @Override
     public UserDto findById(Long userId) {
@@ -98,7 +98,7 @@ private Comparator<User> createUserComparator() {
     @Override
     public void updateUser(UserDto userDto) {
         userRepository.save(convertToEntity(userDto));
-        
+
     }
 
     @Override
@@ -112,7 +112,7 @@ private Comparator<User> createUserComparator() {
         if (hasAdminAuthority()) {
             return true;
         }
-        
+
         // Otherwise, check if they are the only admin in their company
         return isOnlyAdminInCompany();
     }
@@ -128,43 +128,43 @@ private Comparator<User> createUserComparator() {
         long adminCount = userRepository.findAll().stream()
                 .filter(user -> user.isAccountNonLocked() && user.getRole().getId().equals(ADMIN_ROLE_ID))
                 .count();
-        
+
         return adminCount == 1L;
     }
 
-@Override
-public boolean notARootUser(User user) {
-    return !user.getRole().getId().equals(1L);
-}
+    @Override
+    public boolean notARootUser(User user) {
+        return !user.getRole().getId().equals(1L);
+    }
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User with id: " + userId + " does not exist"));
     }
-    
+
     private void softDeleteUser(User user) {
         user.setIsDeleted(true);
-        user.setUsername(user.getUsername()+ "-- VOID");
+        user.setUsername(user.getUsername() + "-- VOID");
         userRepository.save(user);
     }
 
-    private UserDto convertToDTO(User user){
+    private UserDto convertToDTO(User user) {
         return mapperUtil.convert(user, new UserDto());
     }
-    
-    private User convertToEntity(UserDto userDto){
+
+    private User convertToEntity(UserDto userDto) {
         return mapperUtil.convert(userDto, new User());
     }
-    
+
     public boolean isAdminUser(User loggedInUser) { // Accept cached user
-    return loggedInUser.getRole().getId().equals(2L);
-}
-    
+        return loggedInUser.getRole().getId().equals(2L);
+    }
+
     @Override
-    public User getLoggedInUser(){
+    public User getLoggedInUser() {
         String loggedInUser = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByUsername(loggedInUser)
-                .orElseThrow(()-> new UserNotFoundException("Current user not found in DB."));
+                .orElseThrow(() -> new UserNotFoundException("Current user not found in DB."));
     }
-    
+
 }
