@@ -106,7 +106,7 @@ public class ProductServiceTest {
         ProductDto expectedProduct = productDto;
         
         assertThat(expectedProduct).usingRecursiveComparison().isEqualTo(actualProduct);
-        verify(productRepository).findById(2L);
+        verify(productRepository).findById(product.getId());
     }
     
     @Test
@@ -116,5 +116,6 @@ public class ProductServiceTest {
         Throwable throwable = catchThrowable(() -> productService.findById(product.getId()));
         assertInstanceOf(ProductNotFoundException.class, throwable);
         assertEquals("No product found with id: " + product.getId(), throwable.getMessage());
+        verify(productRepository).findById(product.getId());
     }
 }
