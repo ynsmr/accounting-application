@@ -118,6 +118,8 @@ public class RoleServiceTest {
     
     
     
+    
+    
     private void mockAuthentication(){
         lenient().when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
         when(securityContext.getAuthentication()).thenReturn(authentication);
