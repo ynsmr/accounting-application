@@ -27,8 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +83,8 @@ public class UserServiceTest {
         
         CompanyDto companyDto = new CompanyDto();
         companyDto.setCompanyStatus(CompanyStatus.ACTIVE);
-        company.setId(1L);
+        companyDto.setId(1L);
+        userDto.setCompany(companyDto);
       
 
         RoleDto roleDto = new RoleDto();
@@ -196,6 +196,40 @@ public class UserServiceTest {
         // Verify method calls
         verify(userRepository).findByUsername("username");
         verify(userRepository).findAll();
+    }
+    
+    @Test
+    void should_find_by_id(){
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        UserDto actualUser = userService.findById(1L);
+        UserDto expectedUser = userDto;
+        
+        assertThat(expectedUser).usingRecursiveComparison().isEqualTo(actualUser);
+
+    }
+    
+    @Test
+    void should_delete_by_id(){
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        
+        userService.deleteById(1L);
+        
+        assertEquals(true, user.getIsDeleted());
+        
+    }
+    
+    @Test
+    void should_save_user(){
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        
+        userService.saveUser(userDto);
+
+        assertTrue(user.isAccountNonLocked());
+        verify(userRepository).save(user);
+        
     }
     
     private void mockAuthentication() {
