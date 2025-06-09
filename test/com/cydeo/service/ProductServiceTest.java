@@ -12,7 +12,6 @@ import com.cydeo.exception.ProductNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.ProductRepository;
 import com.cydeo.service.impl.ProductServiceImpl;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -183,6 +182,50 @@ public class ProductServiceTest {
         productService.deleteProduct(product.getId());
         assertTrue(product.getIsDeleted());
     }
+    
+    @Test
+    void should_save_product(){
+        when(productRepository.save(any())).thenReturn(product);
+        
+        productService.saveProduct(productDto);
+        
+        verify(productRepository).save(product);
+    }
+    @Test
+    void should_update_product(){
+        when(productRepository.save(any())).thenReturn(product);
+        
+        productService.updateProduct(productDto);
+        
+        verify(productRepository).save(product);
+    }
+    
+    @Test
+    void should_category_have_product(){
+        when(productRepository.existsByCategory_Id(anyLong())).thenReturn(true);
+        productService.categoryHasProduct(product.getCategory().getId());
+        verify(productRepository).existsByCategory_Id(product.getCategory().getId());
+    }
+
+    @Test
+    void should_category_not_have_product(){
+        when(productRepository.existsByCategory_Id(anyLong())).thenReturn(false);
+        productService.categoryHasProduct(product.getCategory().getId());
+        verify(productRepository).existsByCategory_Id(product.getCategory().getId());
+    }
+    
+    @Test
+    void should_list_by_company_id(){
+        mockAuthentication();
+        when(productRepository.findProductsByCategory_Company_Id(anyLong())).thenReturn(getMultipleProducts());
+
+        List<ProductDto> actualProducts = productService.listAllProductsByCompanyId(1L);
+        List<ProductDto> expectedProducts = getMultipleProductDtos();
+        
+        assertThat(actualProducts).usingRecursiveComparison().isEqualTo(expectedProducts);
+        verify(productRepository).findProductsByCategory_Company_Id(1L);
+    }
+    
     
     private void mockAuthentication(){
         User user = new User();
