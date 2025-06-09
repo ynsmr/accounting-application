@@ -272,6 +272,19 @@ public class UserServiceTest {
         assertTrue(b);
     }
     
+    @Test
+    void should_get_logged_in_user(){
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        mockAuthentication();
+
+        User actualUser = userService.getLoggedInUser();
+        User expectedUser = user;
+        
+        assertThat(expectedUser).usingRecursiveComparison().isEqualTo(actualUser);
+        
+        verify(userRepository).findByUsername("username");
+    }
+    
    private void mockAuthentication() {
        // Mock SecurityContext to return the mocked Authentication object
        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
