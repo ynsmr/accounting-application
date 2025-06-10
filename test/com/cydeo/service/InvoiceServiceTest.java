@@ -1,9 +1,6 @@
 package com.cydeo.service;
 
-import com.cydeo.dto.ClientVendorDto;
-import com.cydeo.dto.CompanyDto;
-import com.cydeo.dto.InvoiceDto;
-import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.dto.*;
 import com.cydeo.entity.*;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.CompanyStatus;
@@ -78,10 +75,10 @@ public class InvoiceServiceTest {
         company.setTitle("title");
         invoice.setCompany(company);
         
-//        ClientVendor clientVendor = new ClientVendor();
-//        clientVendor.setId(1L);
-//        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
-//        invoice.setClientVendor(clientVendor);
+        ClientVendor clientVendor = new ClientVendor();
+        clientVendor.setId(1L);
+        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
+        invoice.setClientVendor(clientVendor);
         
         //InvoiceDto
         invoiceDto = new InvoiceDto();
@@ -99,10 +96,11 @@ public class InvoiceServiceTest {
         companyDto.setTitle("title");
         invoiceDto.setCompany(companyDto);
 
-//        ClientVendorDto clientVendorDto = new ClientVendorDto();
-//        clientVendor.setId(1L);
-//        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
-//        invoiceDto.setClientVendor(clientVendorDto);
+        ClientVendorDto clientVendorDto = new ClientVendorDto();
+        clientVendorDto.setId(1L);
+        clientVendorDto.setClientVendorType(ClientVendorType.CLIENT);
+        invoiceDto.setClientVendor(clientVendorDto);
+        invoiceDto.setClientVendor(clientVendorDto);
         
     }
     
@@ -161,12 +159,18 @@ public class InvoiceServiceTest {
         invoiceProduct.setId(1L);
         invoiceProduct.setInvoice(invoice);
         
+        Product product = new Product();
+        product.setId(1L);
+        product.setQuantityInStock(10);
+        invoiceProduct.setProduct(product);
+        
         invoiceProduct.setPrice(BigDecimal.TEN);
         invoiceProduct.setQuantity(2);
         
         InvoiceProduct invoiceProduct1 = new InvoiceProduct();
         invoiceProduct1.setId(2L);
         invoiceProduct1.setInvoice(invoice);
+        invoiceProduct1.setProduct(product);
         
         invoiceProduct1.setPrice(BigDecimal.TEN);
         invoiceProduct.setQuantity(3);
@@ -174,6 +178,7 @@ public class InvoiceServiceTest {
         InvoiceProduct invoiceProduct2 = new InvoiceProduct();
         invoiceProduct2.setId(3L);
         invoiceProduct2.setInvoice(invoice);
+        invoiceProduct2.setProduct(product);
 
         invoiceProduct2.setPrice(BigDecimal.TEN);
         invoiceProduct.setQuantity(4);
@@ -190,9 +195,16 @@ public class InvoiceServiceTest {
         invoiceProduct.setTotal(BigDecimal.valueOf(55L));
         invoiceProduct.setQuantity(2);
 
+        ProductDto product = new ProductDto();
+        product.setId(1L);
+        product.setQuantityInStock(10);
+        invoiceProduct.setProduct(product);
+        
+
         InvoiceProductDto invoiceProduct1 = new InvoiceProductDto();
         invoiceProduct1.setId(2L);
         invoiceProduct1.setInvoice(invoiceDto);
+        invoiceProduct1.setProduct(product);
 
         invoiceProduct1.setPrice(BigDecimal.TEN);
         invoiceProduct1.setTotal(BigDecimal.valueOf(55L));
@@ -201,6 +213,7 @@ public class InvoiceServiceTest {
         InvoiceProductDto invoiceProduct2 = new InvoiceProductDto();
         invoiceProduct2.setId(3L);
         invoiceProduct2.setInvoice(invoiceDto);
+        invoiceProduct2.setProduct(product);
 
         invoiceProduct2.setPrice(BigDecimal.TEN);
         invoiceProduct2.setTotal(BigDecimal.valueOf(55L));
@@ -383,6 +396,32 @@ public class InvoiceServiceTest {
                 .collect(Collectors.toList());
 
         assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
+    }
+    
+    @Test
+    void should_approve_purchase_invoice(){
+        invoice.setInvoiceType(InvoiceType.PURCHASE);
+        invoice.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
+        when(invoiceProductService.findInvoiceProductsByInvoiceId(anyLong())).thenReturn(getmultipleInvoiceProductDtos());
+        when(invoiceRepository.findById(anyLong())).thenReturn(Optional.of(invoice));
+        
+        invoiceService.approvePurchaseInvoice(invoice.getId());
+        
+        assertEquals(InvoiceStatus.APPROVED, invoice.getInvoiceStatus());
+        
+    }
+
+    @Test
+    void should_approve_sales_invoice(){
+        invoice.setInvoiceType(InvoiceType.SALES);
+        invoice.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
+        when(invoiceProductService.findInvoiceProductsByInvoiceId(anyLong())).thenReturn(getmultipleInvoiceProductDtos());
+        when(invoiceRepository.findById(anyLong())).thenReturn(Optional.of(invoice));
+
+        invoiceService.approvePurchaseInvoice(invoice.getId());
+
+        assertEquals(InvoiceStatus.APPROVED, invoice.getInvoiceStatus());
+
     }
     
     
