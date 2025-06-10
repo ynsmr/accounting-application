@@ -236,8 +236,9 @@ public class InvoiceServiceTest {
         
         invoiceService.updateInvoice(invoiceDto);
         
+        assertEquals(invoiceDto.getClientVendor().getId() ,invoice.getClientVendor().getId());
         
-        
+        verify(invoiceRepository).save(invoice);
         
     }
 
