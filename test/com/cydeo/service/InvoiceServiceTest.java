@@ -363,6 +363,27 @@ public class InvoiceServiceTest {
         
         assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
     }
+
+    @Test
+    void should_retrieve_current_sales_invoices(){
+        mockAuthentication();
+        List<Invoice> invoiceList = getMultipleInvoices();
+        invoiceList.forEach(invoice -> invoice.setInvoiceType(InvoiceType.SALES));
+        when(invoiceRepository.findAll()).thenReturn(invoiceList);
+
+        List<InvoiceDto> actualInvoices = invoiceService.retrieveCurrentSalesInvoices();
+
+        List<InvoiceDto> expectedInvoices = invoiceList.stream()
+                .map(invoice -> mapperUtil.convert(invoice, new InvoiceDto()))
+                .peek(invoiceDto -> {
+                    invoiceDto.setPrice(BigDecimal.ZERO);
+                    invoiceDto.setTax(BigDecimal.ZERO);
+                    invoiceDto.setTotal(BigDecimal.ZERO);
+                })
+                .collect(Collectors.toList());
+
+        assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
+    }
     
     
 
