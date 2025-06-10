@@ -170,18 +170,21 @@ public class InvoiceServiceTest {
         invoiceProduct.setInvoice(invoice);
         
         invoiceProduct.setPrice(BigDecimal.TEN);
+        invoiceProduct.setQuantity(2);
         
         InvoiceProduct invoiceProduct1 = new InvoiceProduct();
         invoiceProduct1.setId(2L);
         invoiceProduct1.setInvoice(invoice);
         
         invoiceProduct1.setPrice(BigDecimal.TEN);
+        invoiceProduct.setQuantity(3);
         
         InvoiceProduct invoiceProduct2 = new InvoiceProduct();
         invoiceProduct2.setId(3L);
         invoiceProduct2.setInvoice(invoice);
 
         invoiceProduct2.setPrice(BigDecimal.TEN);
+        invoiceProduct.setQuantity(4);
         
         return List.of(invoiceProduct, invoiceProduct1, invoiceProduct2);
     }
@@ -193,6 +196,7 @@ public class InvoiceServiceTest {
 
         invoiceProduct.setPrice(BigDecimal.TEN);
         invoiceProduct.setTotal(BigDecimal.valueOf(55L));
+        invoiceProduct.setQuantity(2);
 
         InvoiceProductDto invoiceProduct1 = new InvoiceProductDto();
         invoiceProduct1.setId(2L);
@@ -200,6 +204,7 @@ public class InvoiceServiceTest {
 
         invoiceProduct1.setPrice(BigDecimal.TEN);
         invoiceProduct1.setTotal(BigDecimal.valueOf(55L));
+        invoiceProduct1.setQuantity(3);
 
         InvoiceProductDto invoiceProduct2 = new InvoiceProductDto();
         invoiceProduct2.setId(3L);
@@ -207,6 +212,7 @@ public class InvoiceServiceTest {
 
         invoiceProduct2.setPrice(BigDecimal.TEN);
         invoiceProduct2.setTotal(BigDecimal.valueOf(55L));
+        invoiceProduct2.setQuantity(4);
 
         return List.of(invoiceProduct, invoiceProduct1, invoiceProduct2);
     }
@@ -312,6 +318,40 @@ public class InvoiceServiceTest {
         
         verify(invoiceProductService).findInvoiceProductsByInvoiceId(invoice.getId());
     }
+
+    @Test
+    void should_calculate_grand_tax(){
+        when(invoiceProductService.findInvoiceProductsByInvoiceId(anyLong())).thenReturn(getmultipleInvoiceProductDtos());
+
+        BigDecimal actualTax = invoiceService.calculateGrandTax(invoice.getId());
+        BigDecimal expectedTax = getmultipleInvoiceProductDtos().stream().map(invoiceProductDto -> {
+            BigDecimal price = invoiceProductDto.getPrice();
+            Integer quantity = invoiceProductDto.getQuantity();
+            
+            return invoiceProductDto.getTotal().subtract(price.multiply(BigDecimal.valueOf(quantity)));
+        }).reduce(BigDecimal::add).get();
+
+        assertEquals(expectedTax, actualTax);
+        verify(invoiceProductService, times(2)).findInvoiceProductsByInvoiceId(invoice.getId());
+    }
+    
+    @Test
+    void should_calculate_invoice_price(){
+        when(invoiceProductService.findInvoiceProductsByInvoiceId(anyLong())).thenReturn(getmultipleInvoiceProductDtos());
+
+        BigDecimal actualInvoicePrice = invoiceService.calculateInvoicePrice(invoice.getId());
+        BigDecimal expectedInvoicePrice = getmultipleInvoiceProductDtos().stream().map(invoiceProductDto -> {
+            BigDecimal price = invoiceProductDto.getPrice();
+            Integer quantity = invoiceProductDto.getQuantity();
+            
+            return price.multiply(BigDecimal.valueOf(quantity));
+        }).reduce(BigDecimal::add).get();
+        
+        assertEquals(expectedInvoicePrice, actualInvoicePrice);
+        verify(invoiceProductService).findInvoiceProductsByInvoiceId(invoice.getId());
+    }
+    
+    
 
     private void mockAuthentication(){
         User user = new User();
