@@ -12,6 +12,7 @@ import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.respository.InvoiceRepository;
 import com.cydeo.service.impl.InvoiceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -19,8 +20,16 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class InvoiceServiceTest {
@@ -63,6 +72,9 @@ public class InvoiceServiceTest {
         invoiceDto.setInvoiceType(InvoiceType.SALES);
         invoiceDto.setDate(LocalDate.now());
         invoiceDto.setId(1L);
+        invoiceDto.setTax(BigDecimal.ZERO);
+        invoiceDto.setPrice(BigDecimal.ZERO);
+        invoiceDto.setTotal(BigDecimal.ZERO);
 
         CompanyDto companyDto = new CompanyDto();
         companyDto.setCompanyStatus(CompanyStatus.ACTIVE);
@@ -128,6 +140,33 @@ public class InvoiceServiceTest {
 
         return List.of(invoiceDto, invoice1, invoice2);
 
+    }
+    
+    @Test
+    void should_list_all_invoices(){
+        when(invoiceRepository.findAll()).thenReturn(getMultipleInvoices());
+
+        List<InvoiceDto> actualInvoices = invoiceService.listAllInvoices();
+        List<InvoiceDto> expectedInvoices = getMultipleInvoiceDtos().stream()
+                .peek(invoiceDto -> {
+            invoiceDto.setTax(BigDecimal.ZERO); 
+            invoiceDto.setPrice(BigDecimal.ZERO); 
+            invoiceDto.setTotal(BigDecimal.ZERO);
+        }).collect(Collectors.toList());
+        
+        assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
+        verify(invoiceRepository).findAll();
+    }
+    
+    @Test
+    void should_findById(){
+        when(invoiceRepository.findById(anyLong())).thenReturn(Optional.of(invoice));
+
+        InvoiceDto actualInvoice = invoiceService.findById(invoice.getId());
+        InvoiceDto expectedInvoice = invoiceDto;
+        
+        assertThat(actualInvoice).usingRecursiveComparison().isEqualTo(expectedInvoice);
+        verify(invoiceRepository).findById(invoice.getId());
     }
     
 }
