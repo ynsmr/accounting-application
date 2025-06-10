@@ -441,11 +441,24 @@ public class InvoiceServiceTest {
         when(invoiceRepository.findAll()).thenReturn(getMultipleInvoices());
 
         List<InvoiceDto> actualInvoices = invoiceService.listLast3Approved();
-        List<InvoiceDto> expectedInvoices = getMultipleInvoiceDtos();
+        List<InvoiceDto> expectedInvoices = getMultipleInvoiceDtos().stream()
+                .peek(invoiceDto -> {
+                    invoiceDto.setPrice(BigDecimal.ZERO);
+                    invoiceDto.setTax(BigDecimal.ZERO);
+                    invoiceDto.setTotal(BigDecimal.ZERO);
+                }).collect(Collectors.toList());
         
         assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
     }
     
+    @Test
+    void client_vendor_should_have_invoice(){
+        when(invoiceRepository.existsByClientVendor_Id(anyLong())).thenReturn(true);
+        
+        invoiceService.clientVendorHasInvoice(2L);
+                
+        verify(invoiceRepository).existsByClientVendor_Id(2L);
+    }
     
 
     private void mockAuthentication(){
