@@ -3,10 +3,8 @@ package com.cydeo.service;
 import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
-import com.cydeo.entity.ClientVendor;
-import com.cydeo.entity.Company;
-import com.cydeo.entity.Invoice;
-import com.cydeo.entity.User;
+import com.cydeo.dto.InvoiceProductDto;
+import com.cydeo.entity.*;
 import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.enums.InvoiceStatus;
@@ -166,6 +164,53 @@ public class InvoiceServiceTest {
 
     }
     
+    private List<InvoiceProduct> getmultipleInvoiceProducts(){
+        InvoiceProduct invoiceProduct = new InvoiceProduct();
+        invoiceProduct.setId(1L);
+        invoiceProduct.setInvoice(invoice);
+        
+        invoiceProduct.setPrice(BigDecimal.TEN);
+        
+        InvoiceProduct invoiceProduct1 = new InvoiceProduct();
+        invoiceProduct1.setId(2L);
+        invoiceProduct1.setInvoice(invoice);
+        
+        invoiceProduct1.setPrice(BigDecimal.TEN);
+        
+        InvoiceProduct invoiceProduct2 = new InvoiceProduct();
+        invoiceProduct2.setId(3L);
+        invoiceProduct2.setInvoice(invoice);
+
+        invoiceProduct2.setPrice(BigDecimal.TEN);
+        
+        return List.of(invoiceProduct, invoiceProduct1, invoiceProduct2);
+    }
+
+    private List<InvoiceProductDto> getmultipleInvoiceProductDtos(){
+        InvoiceProductDto invoiceProduct = new InvoiceProductDto();
+        invoiceProduct.setId(1L);
+        invoiceProduct.setInvoice(invoiceDto);
+
+        invoiceProduct.setPrice(BigDecimal.TEN);
+        invoiceProduct.setTotal(BigDecimal.valueOf(55L));
+
+        InvoiceProductDto invoiceProduct1 = new InvoiceProductDto();
+        invoiceProduct1.setId(2L);
+        invoiceProduct1.setInvoice(invoiceDto);
+
+        invoiceProduct1.setPrice(BigDecimal.TEN);
+        invoiceProduct1.setTotal(BigDecimal.valueOf(55L));
+
+        InvoiceProductDto invoiceProduct2 = new InvoiceProductDto();
+        invoiceProduct2.setId(3L);
+        invoiceProduct2.setInvoice(invoiceDto);
+
+        invoiceProduct2.setPrice(BigDecimal.TEN);
+        invoiceProduct2.setTotal(BigDecimal.valueOf(55L));
+
+        return List.of(invoiceProduct, invoiceProduct1, invoiceProduct2);
+    }
+    
     @Test
     void should_list_all_invoices(){
         when(invoiceRepository.findAll()).thenReturn(getMultipleInvoices());
@@ -258,7 +303,14 @@ public class InvoiceServiceTest {
     
     @Test
     void should_calculate_grand_total(){
+        when(invoiceProductService.findInvoiceProductsByInvoiceId(anyLong())).thenReturn(getmultipleInvoiceProductDtos());
+
+        BigDecimal actualTotal = invoiceService.calculateGrandTotal(invoice.getId());
+        BigDecimal expectedTotal = getmultipleInvoiceProductDtos().stream().map(InvoiceProductDto::getTotal).reduce(BigDecimal::add).get();
         
+        assertEquals(expectedTotal, actualTotal);
+        
+        verify(invoiceProductService).findInvoiceProductsByInvoiceId(invoice.getId());
     }
 
     private void mockAuthentication(){
