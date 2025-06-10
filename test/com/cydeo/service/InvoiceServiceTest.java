@@ -7,6 +7,7 @@ import com.cydeo.entity.Invoice;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
+import com.cydeo.exception.InvoiceNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.InvoiceProductRepository;
 import com.cydeo.respository.InvoiceRepository;
@@ -27,6 +28,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -167,6 +171,17 @@ public class InvoiceServiceTest {
         
         assertThat(actualInvoice).usingRecursiveComparison().isEqualTo(expectedInvoice);
         verify(invoiceRepository).findById(invoice.getId());
+    }
+    
+    @Test
+    void should_not_find_by_id(){
+        when(invoiceRepository.findById(anyLong())).thenReturn(Optional.empty());
+        
+        Throwable throwable = catchThrowable(() -> invoiceService.findById(invoice.getId()));
+        
+        assertInstanceOf(InvoiceNotFoundException.class, throwable);
+        
+        assertEquals("No invoice found with id: " + invoice.getId(), throwable.getMessage());
     }
     
 }
