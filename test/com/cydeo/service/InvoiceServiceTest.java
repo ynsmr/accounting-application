@@ -241,6 +241,11 @@ public class InvoiceServiceTest {
         verify(invoiceRepository).save(invoice);
         
     }
+    
+    @Test
+    void should_get_invoice_template(){
+        
+    }
 
     private void mockAuthentication(){
         User user = new User();
