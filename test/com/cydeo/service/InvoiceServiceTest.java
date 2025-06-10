@@ -78,10 +78,10 @@ public class InvoiceServiceTest {
         company.setTitle("title");
         invoice.setCompany(company);
         
-        ClientVendor clientVendor = new ClientVendor();
-        clientVendor.setId(1L);
-        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
-        invoice.setClientVendor(clientVendor);
+//        ClientVendor clientVendor = new ClientVendor();
+//        clientVendor.setId(1L);
+//        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
+//        invoice.setClientVendor(clientVendor);
         
         //InvoiceDto
         invoiceDto = new InvoiceDto();
@@ -99,10 +99,10 @@ public class InvoiceServiceTest {
         companyDto.setTitle("title");
         invoiceDto.setCompany(companyDto);
 
-        ClientVendorDto clientVendorDto = new ClientVendorDto();
-        clientVendor.setId(1L);
-        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
-        invoiceDto.setClientVendor(clientVendorDto);
+//        ClientVendorDto clientVendorDto = new ClientVendorDto();
+//        clientVendor.setId(1L);
+//        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
+//        invoiceDto.setClientVendor(clientVendorDto);
         
     }
     
@@ -115,7 +115,7 @@ public class InvoiceServiceTest {
 
         Company company1 = new Company();
         company1.setCompanyStatus(CompanyStatus.ACTIVE);
-        company1.setId(2l);
+        company1.setId(1l);
         company1.setTitle("title");
         invoice1.setCompany(company1);
 
@@ -124,12 +124,8 @@ public class InvoiceServiceTest {
         invoice2.setInvoiceType(InvoiceType.SALES);
         invoice2.setDate(LocalDate.now());
         invoice2.setId(3L);
-
-        Company company2 = new Company();
-        company2.setCompanyStatus(CompanyStatus.ACTIVE);
-        company2.setId(3l);
-        company2.setTitle("title");
-        invoice2.setCompany(company2);
+        
+        invoice2.setCompany(company1);
         
         return List.of(invoice, invoice1, invoice2);
         
@@ -144,7 +140,7 @@ public class InvoiceServiceTest {
 
         CompanyDto company1 = new CompanyDto();
         company1.setCompanyStatus(CompanyStatus.ACTIVE);
-        company1.setId(2l);
+        company1.setId(1l);
         company1.setTitle("title");
         invoice1.setCompany(company1);
 
@@ -153,12 +149,8 @@ public class InvoiceServiceTest {
         invoice2.setInvoiceType(InvoiceType.SALES);
         invoice2.setDate(LocalDate.now());
         invoice2.setId(3L);
-
-        CompanyDto company2 = new CompanyDto();
-        company2.setCompanyStatus(CompanyStatus.ACTIVE);
-        company2.setId(3l);
-        company2.setTitle("title");
-        invoice2.setCompany(company2);
+        
+        invoice2.setCompany(company1);
 
         return List.of(invoiceDto, invoice1, invoice2);
 
@@ -351,7 +343,18 @@ public class InvoiceServiceTest {
         verify(invoiceProductService).findInvoiceProductsByInvoiceId(invoice.getId());
     }
     
-    
+    @Test
+    void should_retrieve_current_purchase_invoices(){
+        mockAuthentication();
+        List<Invoice> invoiceList = getMultipleInvoices();
+        invoiceList.forEach(invoice -> invoice.setInvoiceType(InvoiceType.PURCHASE));
+        when(invoiceRepository.findAll()).thenReturn(invoiceList);
+
+        List<InvoiceDto> actualInvoices = invoiceService.retrieveCurrentPurchaseInvoices();
+        List<InvoiceDto> expectedInvoices = getMultipleInvoiceDtos();
+        
+        assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
+    }
 
     private void mockAuthentication(){
         User user = new User();
