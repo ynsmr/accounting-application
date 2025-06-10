@@ -424,6 +424,28 @@ public class InvoiceServiceTest {
 
     }
     
+    @Test
+    void should_calculate_profit_loss_for_approoved_sales(){
+        List<InvoiceProduct> invoiceProducts = getmultipleInvoiceProducts();
+        mockAuthentication();
+        when(invoiceProductRepository.findAll()).thenReturn(invoiceProducts);
+        
+        invoiceService.calculateProfitLossForAllApprovedSales();
+        
+        invoiceProducts.forEach(invoiceProduct -> assertTrue(invoiceProduct.getProfitLoss() != null));
+    }
+    
+    @Test
+    void should_list_last_3_approved(){
+        mockAuthentication();
+        when(invoiceRepository.findAll()).thenReturn(getMultipleInvoices());
+
+        List<InvoiceDto> actualInvoices = invoiceService.listLast3Approved();
+        List<InvoiceDto> expectedInvoices = getMultipleInvoiceDtos();
+        
+        assertThat(actualInvoices).usingRecursiveComparison().isEqualTo(expectedInvoices);
+    }
+    
     
 
     private void mockAuthentication(){
