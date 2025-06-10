@@ -159,7 +159,7 @@ public class InvoiceServiceTest {
     }
     
     @Test
-    void should_findById(){
+    void should_find_by_id(){
         when(invoiceRepository.findById(anyLong())).thenReturn(Optional.of(invoice));
 
         InvoiceDto actualInvoice = invoiceService.findById(invoice.getId());
