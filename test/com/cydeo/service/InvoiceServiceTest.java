@@ -1,9 +1,13 @@
 package com.cydeo.service;
 
+import com.cydeo.dto.ClientVendorDto;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.InvoiceDto;
+import com.cydeo.entity.ClientVendor;
 import com.cydeo.entity.Company;
 import com.cydeo.entity.Invoice;
+import com.cydeo.entity.User;
+import com.cydeo.enums.ClientVendorType;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.enums.InvoiceStatus;
 import com.cydeo.enums.InvoiceType;
@@ -20,6 +24,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,13 +34,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 public class InvoiceServiceTest {
@@ -47,6 +53,10 @@ public class InvoiceServiceTest {
     private ProductService productService;
     @Mock
     private InvoiceProductRepository invoiceProductRepository;
+    @Mock
+    private SecurityContext securityContext;
+    @Mock
+    private Authentication authentication;
     @Spy
     private MapperUtil mapperUtil = new MapperUtil(new ModelMapper());
     @InjectMocks
@@ -70,6 +80,11 @@ public class InvoiceServiceTest {
         company.setTitle("title");
         invoice.setCompany(company);
         
+        ClientVendor clientVendor = new ClientVendor();
+        clientVendor.setId(1L);
+        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
+        invoice.setClientVendor(clientVendor);
+        
         //InvoiceDto
         invoiceDto = new InvoiceDto();
         invoiceDto.setInvoiceStatus(InvoiceStatus.APPROVED);
@@ -85,6 +100,11 @@ public class InvoiceServiceTest {
         companyDto.setId(1l);
         companyDto.setTitle("title");
         invoiceDto.setCompany(companyDto);
+
+        ClientVendorDto clientVendorDto = new ClientVendorDto();
+        clientVendor.setId(1L);
+        clientVendor.setClientVendorType(ClientVendorType.CLIENT);
+        invoiceDto.setClientVendor(clientVendorDto);
         
     }
     
@@ -183,5 +203,67 @@ public class InvoiceServiceTest {
         
         assertEquals("No invoice found with id: " + invoice.getId(), throwable.getMessage());
     }
+    
+    @Test
+    void should_delete_invoice_by_id(){
+        when(invoiceRepository.save(any())).thenReturn(invoice);
+        when(invoiceRepository.findById(anyLong())).thenReturn(Optional.of(invoice));
+        
+        invoiceService.deleteInvoiceById(invoice.getId());
+        
+        assertTrue(invoice.getIsDeleted());
+        verify(invoiceRepository).save(invoice);
+    }
+    
+    @Test
+    void should_save_invoice(){
+        mockAuthentication();
+        when(invoiceRepository.save(any())).thenReturn(invoice);
+        
+        invoiceService.saveInvoice(invoiceDto, invoiceDto.getInvoiceType());
+        
+        assertEquals(BigDecimal.ZERO, invoiceDto.getTotal());
+        assertEquals(BigDecimal.ZERO, invoiceDto.getTax());
+        assertEquals(BigDecimal.ZERO, invoiceDto.getPrice());
+        
+        verify(invoiceRepository).save(invoice);
+    }
+    
+    @Test
+    void should_update_invoice(){
+        when(invoiceRepository.save(any())).thenReturn(invoice);
+        when(invoiceRepository.findById(anyLong())).thenReturn(Optional.of(invoice));
+        
+        invoiceService.updateInvoice(invoiceDto);
+        
+        
+        
+        
+    }
+
+    private void mockAuthentication(){
+        User user = new User();
+        user.setId(1L);
+        user.setFirstname("Mike");
+        user.setLastname("Tyson");
+        user.setUsername("miketyson");
+        user.setAccountNonLocked(true);
+
+        Company company = new Company();
+        company.setId(1L);
+        company.setCompanyStatus(CompanyStatus.ACTIVE);
+        user.setCompany(company);
+
+        lenient().when(userService.getLoggedInUser()).thenReturn(user);
+
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.getName()).thenReturn(user.getUsername());
+        SecurityContextHolder.setContext(securityContext);
+
+    }
+    
+    
+    
+    
     
 }

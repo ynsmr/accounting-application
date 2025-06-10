@@ -85,7 +85,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public void updateInvoice(InvoiceDto invoiceDto) {
         Invoice invoiceById = findInvoiceById(invoiceDto.getId());
-        invoiceById.setClientVendor(invoiceById.getClientVendor());
+        invoiceById.setClientVendor(convertToEntity(invoiceDto).getClientVendor());
         invoiceRepository.save(invoiceById);
 
     }
