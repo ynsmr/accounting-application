@@ -256,6 +256,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         return prefix + INVOICE_NUMBER_SEPARATOR + formattedSequence;
     }
 
+   
     private String getNextInvoiceSequence(String prefix) {
         List<Invoice> invoices = invoiceRepository.findByInvoiceNoStartingWith(prefix + INVOICE_NUMBER_SEPARATOR);
 
@@ -263,7 +264,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         if (!invoices.isEmpty()) {
             nextSequence = invoices.stream()
-                    .map(invoice -> invoice.getInvoiceNo().split(INVOICE_NUMBER_SEPARATOR)[1])
+                    .map(invoice -> invoice .getInvoiceNo().split(INVOICE_NUMBER_SEPARATOR)[1])
                     .mapToInt(Integer::parseInt)
                     .max()
                     .orElse(0) + 1;

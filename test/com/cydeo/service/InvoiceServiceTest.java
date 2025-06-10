@@ -243,7 +243,21 @@ public class InvoiceServiceTest {
     }
     
     @Test
-    void should_get_invoice_template(){
+    void should_get_invoice_template_sales(){
+        
+        InvoiceDto invoiceTemplate = invoiceService.getInvoiceTemplate(InvoiceType.SALES);
+        assertTrue(invoiceTemplate.getInvoiceNo().startsWith("S"));
+    }
+
+    @Test
+    void should_get_invoice_template_purchase(){
+
+        InvoiceDto invoiceTemplate = invoiceService.getInvoiceTemplate(InvoiceType.PURCHASE);
+        assertTrue(invoiceTemplate.getInvoiceNo().startsWith("P"));
+    }
+    
+    @Test
+    void should_calculate_grand_total(){
         
     }
 
