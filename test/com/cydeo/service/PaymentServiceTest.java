@@ -8,6 +8,7 @@ import com.cydeo.entity.User;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.enums.Month;
 import com.cydeo.exception.InvalidYearException;
+import com.cydeo.exception.PaymentNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.PaymentRepository;
 import com.cydeo.service.impl.PaymentServiceImpl;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -175,6 +177,52 @@ public class PaymentServiceTest {
         assertInstanceOf(InvalidYearException.class, throwable);
         assertEquals("Year selected is not valid for the company.", throwable.getMessage());
         verify(paymentRepository, times(0)).findPaymentByYear(1995);
+    }
+    
+    @Test
+    void should_create_payments_and_list(){
+        mockAuthentication();
+        when(paymentRepository.existsByYear(anyInt())).thenReturn(false);
+        when(paymentRepository.findPaymentByYear(anyInt())).thenReturn(getMultiplePayments());
+
+        List<PaymentDto> actualPayments = paymentService.listPaymentsByYear(payment.getYear());
+        List<PaymentDto> expectedPayments = getMultiplePaymentDtos();
+
+        assertThat(actualPayments).usingRecursiveComparison().isEqualTo(expectedPayments);
+
+        verify(paymentRepository).findPaymentByYear(payment.getYear());
+    }
+    
+    @Test
+    void should_save_payment(){
+        mockAuthentication();
+        when(paymentRepository.save(any())).thenReturn(payment);
+        
+        paymentService.savePayment(paymentDto);
+        
+        verify(paymentRepository).save(payment);
+    }
+    
+    @Test
+    void should_get_payment_by_id(){
+        when(paymentRepository.findById(anyLong())).thenReturn(Optional.of(payment));
+
+        PaymentDto actualPayment = paymentService.getPaymentById(payment.getId());
+        PaymentDto expectedPayment = paymentDto;
+        
+        assertThat(actualPayment).usingRecursiveComparison().isEqualTo(expectedPayment);
+        verify(paymentRepository).findById(payment.getId());
+    }
+    
+    @Test
+    void should_not_get_payment_by_id(){
+        when(paymentRepository.findById(anyLong())).thenReturn(Optional.empty());
+        
+        Throwable throwable = catchThrowable(()-> paymentService.getPaymentById(payment.getId()));
+        assertInstanceOf(PaymentNotFoundException.class, throwable);
+        assertEquals("Payment not found with id: " + payment.getId(), throwable.getMessage());
+        
+        verify(paymentRepository).findById(payment.getId());
     }
     
     
