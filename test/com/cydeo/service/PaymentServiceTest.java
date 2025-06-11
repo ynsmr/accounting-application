@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,8 +32,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -223,6 +221,15 @@ public class PaymentServiceTest {
         assertEquals("Payment not found with id: " + payment.getId(), throwable.getMessage());
         
         verify(paymentRepository).findById(payment.getId());
+    }
+    
+    @Test
+    void should_mark_as_paid(){
+        when(paymentRepository.findById(anyLong())).thenReturn(Optional.of(payment));
+        
+        paymentService.markAsPaid(payment.getId());
+        assertTrue(payment.isPaid());
+        verify(paymentRepository).save(payment);
     }
     
     
