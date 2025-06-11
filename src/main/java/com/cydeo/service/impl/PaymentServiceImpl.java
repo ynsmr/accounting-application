@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.dto.CompanyDto;
 import com.cydeo.dto.PaymentDto;
 import com.cydeo.entity.Payment;
 import com.cydeo.enums.Month;
@@ -59,7 +60,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void savePayment(PaymentDto paymentDto) {
-        paymentDto.setCompany(userService.getLoggedInUser().getCompany());
+        paymentDto.setCompany(mapperUtil.convert(userService.getLoggedInUser().getCompany(), new CompanyDto()));
         paymentDto.setYear(Year.now().getValue());
         paymentDto.setMonth(Month.valueOf(LocalDate.now().getMonth().name()));
         paymentRepository.save(convertToEntity(paymentDto));

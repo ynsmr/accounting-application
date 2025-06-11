@@ -25,5 +25,5 @@ public class PaymentDto {
     private boolean isPaid;
     private String companyStripeId;
     private Month month;
-    private Company company;
+    private CompanyDto company;
 }
