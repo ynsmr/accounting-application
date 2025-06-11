@@ -7,6 +7,7 @@ import com.cydeo.entity.Payment;
 import com.cydeo.entity.User;
 import com.cydeo.enums.CompanyStatus;
 import com.cydeo.enums.Month;
+import com.cydeo.exception.InvalidYearException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.PaymentRepository;
 import com.cydeo.service.impl.PaymentServiceImpl;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +30,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -162,6 +167,17 @@ public class PaymentServiceTest {
         
         verify(paymentRepository).findPaymentByYear(payment.getYear());
     }
+    
+    @Test
+    void should_throw_invalid_year_exception(){
+        mockAuthentication();
+        Throwable throwable = catchThrowable(() -> paymentService.listPaymentsByYear(1995));
+        assertInstanceOf(InvalidYearException.class, throwable);
+        assertEquals("Year selected is not valid for the company.", throwable.getMessage());
+        verify(paymentRepository, times(0)).findPaymentByYear(1995);
+    }
+    
+    
 
     private void mockAuthentication(){
         User user = new User();
