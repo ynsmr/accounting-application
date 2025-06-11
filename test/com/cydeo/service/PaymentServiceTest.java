@@ -23,6 +23,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -146,6 +148,20 @@ public class PaymentServiceTest {
         verify(paymentRepository).findAll();
 
     }
+    
+    @Test
+    void should_list_payments_by_year(){
+        mockAuthentication();
+        when(paymentRepository.existsByYear(anyInt())).thenReturn(true);
+        when(paymentRepository.findPaymentByYear(anyInt())).thenReturn(getMultiplePayments());
+
+        List<PaymentDto> actualPayments = paymentService.listPaymentsByYear(payment.getYear());
+        List<PaymentDto> expectedPayments = getMultiplePaymentDtos();
+        
+        assertThat(actualPayments).usingRecursiveComparison().isEqualTo(expectedPayments);
+        
+        verify(paymentRepository).findPaymentByYear(payment.getYear());
+    }
 
     private void mockAuthentication(){
         User user = new User();
@@ -158,6 +174,7 @@ public class PaymentServiceTest {
         Company company = new Company();
         company.setId(1L);
         company.setCompanyStatus(CompanyStatus.ACTIVE);
+        company.setInsertDateTime(LocalDateTime.of(2012, 12, 12, 0, 0, 0));
         user.setCompany(company);
 
         lenient().when(userService.getLoggedInUser()).thenReturn(user);
