@@ -6,7 +6,7 @@ import com.cydeo.dto.ProductDto;
 import java.util.List;
 import java.util.Queue;
 
-public interface InvoiceProductService {
+public interface  InvoiceProductService {
     
     List<InvoiceProductDto> listAllInvoiceProducts();
     InvoiceProductDto findById(Long invoiceProductId);
