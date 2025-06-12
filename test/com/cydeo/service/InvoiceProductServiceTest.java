@@ -262,7 +262,25 @@ public class InvoiceProductServiceTest {
     void should_remove_invoice_product(){
         when(invoiceProductRepository.findById(anyLong())).thenReturn(Optional.of(invoiceProduct));
         
+        invoiceProductService.removeInvoiceProduct(invoice.getId(), invoiceProduct.getId());
         
+        assertTrue(invoiceProduct.getIsDeleted());
+        verify(invoiceProductRepository).save(invoiceProduct);
+        
+    }
+    
+    @Test
+    void should_not_remove_invoice_product(){
+        Invoice invoice1 = new Invoice();
+        invoice1.setId(5L);
+        invoiceProduct.setInvoice(invoice1);
+        when(invoiceProductRepository.findById(anyLong())).thenReturn(Optional.of(invoiceProduct));
+        
+        Throwable throwable = catchThrowable(() -> invoiceProductService.removeInvoiceProduct(invoice.getId(), invoiceProduct.getId()));
+        
+        assertInstanceOf(InvoiceProductNotFoundException.class, throwable);
+        
+        assertEquals("Given invoice product is not associated with given invoice.", throwable.getMessage());
     }
     
 
