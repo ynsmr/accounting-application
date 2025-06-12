@@ -25,8 +25,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -172,6 +175,27 @@ public class DashboardServiceTest {
         assertEquals(BigDecimal.ZERO, actualTotalSales);
 
         verify(invoiceService).retrieveCurrentSalesInvoices();
+
+    }
+    
+    @Test
+    void should_calculate_profit_loss_by_company(){
+        mockAuthentication();
+
+        BigDecimal profitLoss = dashboardService.calculateProfitLossByCompanyId();
+        
+        assertEquals(BigDecimal.ZERO, profitLoss);
+    }
+    
+    @Test
+    void should_get_summary_numbers(){
+        Map<String, BigDecimal> expectedMap = new HashMap<>();
+        expectedMap.put("profitLoss", BigDecimal.ZERO);
+        expectedMap.put("totalCost", BigDecimal.ZERO);
+        expectedMap.put("totalSales", BigDecimal.ZERO);
+        Map<String, BigDecimal> actualMap = dashboardService.getSummaryNumbers();
+        
+        assertThat(actualMap).usingRecursiveComparison().isEqualTo(expectedMap);
 
     }
     
