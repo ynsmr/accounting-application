@@ -161,7 +161,7 @@ public class ClientVendorServiceTest {
     void should_update_client_vendor(){
         when(clientVendorRepository.save(any())).thenReturn(clientVendor);
 
-        clientVendorService.saveClientVendor(clientVendorDto);
+        clientVendorService.updateClientVendor(clientVendorDto);
 
         verify(clientVendorRepository).save(clientVendor);
     }

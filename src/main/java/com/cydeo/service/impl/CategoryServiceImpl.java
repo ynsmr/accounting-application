@@ -60,7 +60,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long categoryId) {
         softDeleteCategory(findCategoryById(categoryId));
-
     }
 
     private CategoryDto convertToDto(Category category){
