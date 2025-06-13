@@ -257,7 +257,6 @@ public class CompanyServiceTest {
     }
     
     
-
     private void mockAuthentication(){
         User user = new User();
         user.setId(1L);
