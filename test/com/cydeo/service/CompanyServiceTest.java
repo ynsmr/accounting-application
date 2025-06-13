@@ -4,10 +4,12 @@ import com.cydeo.client.CountryClient;
 import com.cydeo.dto.CompanyDto;
 import com.cydeo.entity.Company;
 import com.cydeo.enums.CompanyStatus;
+import com.cydeo.exception.CompanyNotFoundException;
 import com.cydeo.mapper.MapperUtil;
 import com.cydeo.respository.CompanyRepository;
 import com.cydeo.service.impl.CompanyServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,6 +20,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 
 import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyServiceTest {
@@ -79,6 +90,30 @@ public class CompanyServiceTest {
         company2.setTitle("company1");
 
         return List.of(companyDto, company1, company2);
+    }
+    
+    @Test
+    void should_find_company_by_user(){
+        when(companyRepository.findCompanyByLoggedInUser(anyLong())).thenReturn(Optional.of(company));
+
+        CompanyDto actualCompany = companyService.findCompanyByUser(1L);
+        CompanyDto expectedCompany = companyDto;
+        
+        assertThat(actualCompany).usingRecursiveComparison().isEqualTo(expectedCompany);
+        verify(companyRepository).findCompanyByLoggedInUser(1L);
+
+    }
+    
+    @Test
+    void should_not_find_company_by_user(){
+        when(companyRepository.findCompanyByLoggedInUser(anyLong())).thenReturn(Optional.empty());
+        
+        Throwable throwable = catchThrowable(() -> companyService.findCompanyByUser(1L));
+        
+        assertInstanceOf(CompanyNotFoundException.class, throwable);
+        assertEquals("No associated company found", throwable.getMessage());
+        
+        verify(companyRepository).findCompanyByLoggedInUser(1L);
     }
     
     
