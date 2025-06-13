@@ -30,6 +30,6 @@ public class ClientVendorDto {
     private ClientVendorType clientVendorType;
     @Valid
     private AddressDto address;
-    private CompanyDto companyDto;
+    private CompanyDto company;
     private boolean hasInvoice;
 }
